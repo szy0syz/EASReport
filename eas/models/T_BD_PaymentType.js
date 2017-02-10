@@ -60,6 +60,7 @@ module.exports = function(sequelize, DataTypes) {
 			allowNull: false
 		}
 	}, {
-		tableName: 'T_BD_PaymentType'
+		tableName: 'T_BD_PaymentType',
+		timestamps: false
 	});
 };

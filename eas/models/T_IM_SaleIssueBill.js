@@ -248,6 +248,7 @@ module.exports = function(sequelize, DataTypes) {
 			allowNull: true
 		}
 	}, {
-		tableName: 'T_IM_SaleIssueBill'
+		tableName: 'T_IM_SaleIssueBill',
+		timestamps: false
 	});
 };

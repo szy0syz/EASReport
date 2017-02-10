@@ -192,6 +192,7 @@ module.exports = function(sequelize, DataTypes) {
 			allowNull: false
 		}
 	}, {
-		tableName: 'T_BD_Customer'
+		tableName: 'T_BD_Customer',
+		timestamps: false
 	});
 };

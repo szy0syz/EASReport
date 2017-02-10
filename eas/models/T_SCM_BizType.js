@@ -68,6 +68,7 @@ module.exports = function(sequelize, DataTypes) {
 			allowNull: true
 		}
 	}, {
-		tableName: 'T_SCM_BizType'
+		tableName: 'T_SCM_BizType',
+		timestamps: false
 	});
 };

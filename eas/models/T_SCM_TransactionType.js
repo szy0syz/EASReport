@@ -168,6 +168,7 @@ module.exports = function(sequelize, DataTypes) {
 			allowNull: false
 		}
 	}, {
-		tableName: 'T_SCM_TransactionType'
+		tableName: 'T_SCM_TransactionType',
+		timestamps: false
 	});
 };

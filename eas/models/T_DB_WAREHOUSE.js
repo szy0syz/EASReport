@@ -100,6 +100,7 @@ module.exports = function(sequelize, DataTypes) {
 			allowNull: true
 		}
 	}, {
-		tableName: 'T_DB_WAREHOUSE'
+		tableName: 'T_DB_WAREHOUSE',
+		timestamps: false
 	});
 };

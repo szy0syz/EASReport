@@ -84,6 +84,7 @@ module.exports = function(sequelize, DataTypes) {
 			allowNull: false
 		}
 	}, {
-		tableName: 'T_BD_MeasureUnit'
+		tableName: 'T_BD_MeasureUnit',
+		timestamps: false
 	});
 };

@@ -240,6 +240,7 @@ module.exports = function(sequelize, DataTypes) {
 			allowNull: true
 		}
 	}, {
-		tableName: 'T_ORG_BaseUnit'
+		tableName: 'T_ORG_BaseUnit',
+		timestamps: false
 	});
 };

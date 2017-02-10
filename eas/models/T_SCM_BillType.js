@@ -80,6 +80,7 @@ module.exports = function(sequelize, DataTypes) {
 			allowNull: true
 		}
 	}, {
-		tableName: 'T_SCM_BillType'
+		tableName: 'T_SCM_BillType',
+		timestamps: false
 	});
 };

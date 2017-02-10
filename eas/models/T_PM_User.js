@@ -176,6 +176,7 @@ module.exports = function(sequelize, DataTypes) {
 			allowNull: true
 		}
 	}, {
-		tableName: 'T_PM_User'
+		tableName: 'T_PM_User',
+		timestamps: false
 	});
 };
