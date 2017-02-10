@@ -8,7 +8,7 @@
             "type": "node",
             "request": "launch",
             "name": "启动程序",
-            "program": "${workspaceRoot}/t1.js",
+            "program": "${workspaceRoot}/eas/index.js",
             "cwd": "${workspaceRoot}",
             "outFiles": []
         },
