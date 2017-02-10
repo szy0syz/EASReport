@@ -1,1 +1,4 @@
 sequelize-auto -h "192.168.97.199" -d "YNNZ2011001_20160912" -u "szy0syz0yngf2017" -p 1433 -x "xQnWdw3u4BOgwTuU" -t "T_IM_SaleIssueBill","T_IM_SaleIssueEntry","T_BD_Customer","T_BD_PaymentType","T_ORG_BaseUnit","T_SCM_TransactionType","T_SCM_BizType","T_SCM_BillType","T_PM_User","T_ORG_BaseUnt","T_BD_Customer","T_DB_WAREHOUSE","T_BD_MeasureUnit" -e "mssql"
+
+
+sequelize-auto -h "192.168.97.199" -d "YNNZ2011001_20160912" -u "szy0syz0yngf2017" -p 1433 -x "xQnWdw3u4BOgwTuU" -t "T_IM_SaleIssueBill","T_IM_SaleIssueEntry","T_BD_Customer","T_BD_PaymentType","T_ORG_BaseUnit","T_SCM_TransactionType","T_SCM_BizType","T_SCM_BillType","T_PM_User","T_ORG_BaseUnt","T_BD_Customer","T_DB_WAREHOUSE","T_BD_MeasureUnit" -e "mssql" -c "./db/config/generatorConfig.json"

@@ -1,115 +1,11 @@
 /* jshint indent: 1 */
 
 module.exports = function(sequelize, DataTypes) {
-	return sequelize.define('T_PM_User', {
+	return sequelize.define('T_BD_Customer', {
 		FID: {
 			type: DataTypes.STRING,
 			allowNull: false,
 			primaryKey: true
-		},
-		FNumber: {
-			type: DataTypes.STRING,
-			allowNull: true
-		},
-		FName_L1: {
-			type: DataTypes.STRING,
-			allowNull: true
-		},
-		FName_L2: {
-			type: DataTypes.STRING,
-			allowNull: true
-		},
-		FName_L3: {
-			type: DataTypes.STRING,
-			allowNull: true
-		},
-		FType: {
-			type: DataTypes.INTEGER,
-			allowNull: false
-		},
-		FDescription_L1: {
-			type: DataTypes.STRING,
-			allowNull: true
-		},
-		FDescription_L2: {
-			type: DataTypes.STRING,
-			allowNull: true
-		},
-		FDescription_L3: {
-			type: DataTypes.STRING,
-			allowNull: true
-		},
-		FPassword: {
-			type: DataTypes.STRING,
-			allowNull: true
-		},
-		FIsDelete: {
-			type: DataTypes.INTEGER,
-			allowNull: true
-		},
-		FIsLocked: {
-			type: DataTypes.INTEGER,
-			allowNull: true
-		},
-		FForbidden: {
-			type: DataTypes.INTEGER,
-			allowNull: true
-		},
-		FEffectiveDate: {
-			type: DataTypes.DATE,
-			allowNull: true
-		},
-		FInvalidationDate: {
-			type: DataTypes.DATE,
-			allowNull: true
-		},
-		FDefaultLocale: {
-			type: DataTypes.STRING,
-			allowNull: true
-		},
-		FIsRegister: {
-			type: DataTypes.INTEGER,
-			allowNull: true
-		},
-		FErrCount: {
-			type: DataTypes.INTEGER,
-			allowNull: true
-		},
-		FGroupID: {
-			type: DataTypes.STRING,
-			allowNull: true
-		},
-		FPersonId: {
-			type: DataTypes.STRING,
-			allowNull: true
-		},
-		FSecurityId: {
-			type: DataTypes.STRING,
-			allowNull: true
-		},
-		FPWEffectiveDate: {
-			type: DataTypes.DATE,
-			allowNull: true
-		},
-		FLockedTime: {
-			type: DataTypes.DATE,
-			allowNull: true
-		},
-		FIsBizAdmin: {
-			type: DataTypes.INTEGER,
-			allowNull: false
-		},
-		FIsChangedPW: {
-			type: DataTypes.INTEGER,
-			allowNull: false
-		},
-		FDefOrgUnitID: {
-			type: DataTypes.STRING,
-			allowNull: true
-		},
-		FControlUnitID: {
-			type: DataTypes.STRING,
-			allowNull: false
 		},
 		FCreatorID: {
 			type: DataTypes.STRING,
@@ -127,55 +23,176 @@ module.exports = function(sequelize, DataTypes) {
 			type: DataTypes.DATE,
 			allowNull: true
 		},
-		FCustomerID: {
+		FControlUnitID: {
+			type: DataTypes.STRING,
+			allowNull: false
+		},
+		FName_L1: {
 			type: DataTypes.STRING,
 			allowNull: true
 		},
-		FSupplierID: {
+		FName_L2: {
 			type: DataTypes.STRING,
 			allowNull: true
 		},
-		FMainRoleID: {
+		FName_L3: {
 			type: DataTypes.STRING,
 			allowNull: true
 		},
-		FagentUser: {
+		FNumber: {
+			type: DataTypes.STRING,
+			allowNull: false
+		},
+		FDescription_L1: {
+			type: DataTypes.STRING,
+			allowNull: true
+		},
+		FDescription_L2: {
+			type: DataTypes.STRING,
+			allowNull: true
+		},
+		FDescription_L3: {
+			type: DataTypes.STRING,
+			allowNull: true
+		},
+		FSimpleName: {
+			type: DataTypes.STRING,
+			allowNull: true
+		},
+		FCountryID: {
+			type: DataTypes.STRING,
+			allowNull: true
+		},
+		FCityID: {
+			type: DataTypes.STRING,
+			allowNull: true
+		},
+		FProvince: {
+			type: DataTypes.STRING,
+			allowNull: true
+		},
+		FRegionID: {
+			type: DataTypes.STRING,
+			allowNull: true
+		},
+		FTaxDataID: {
+			type: DataTypes.STRING,
+			allowNull: true
+		},
+		FUsedStatus: {
 			type: DataTypes.INTEGER,
 			allowNull: true
 		},
-		FLoginAuthorWay: {
+		FBizAnalysisCodeID: {
+			type: DataTypes.STRING,
+			allowNull: true
+		},
+		FIndustryID: {
+			type: DataTypes.STRING,
+			allowNull: true
+		},
+		FInternalCompanyID: {
+			type: DataTypes.STRING,
+			allowNull: true
+		},
+		FFreezeOrgUnitID: {
+			type: DataTypes.STRING,
+			allowNull: true
+		},
+		FBrowseGroupID: {
+			type: DataTypes.STRING,
+			allowNull: true
+		},
+		FArtificialPerson: {
+			type: DataTypes.STRING,
+			allowNull: true
+		},
+		FBizRegisterNo: {
+			type: DataTypes.STRING,
+			allowNull: true
+		},
+		FIsInternalCompany: {
 			type: DataTypes.INTEGER,
 			allowNull: true
 		},
-		FPwdHisStr: {
+		FTxRegisterNo: {
 			type: DataTypes.STRING,
 			allowNull: true
 		},
-		FReferId: {
+		FVersion: {
+			type: DataTypes.INTEGER,
+			allowNull: true
+		},
+		FEffectedStatus: {
+			type: DataTypes.INTEGER,
+			allowNull: true
+		},
+		FSuperiorUnit: {
 			type: DataTypes.STRING,
 			allowNull: true
 		},
-		FCell: {
+		FBarCode: {
 			type: DataTypes.STRING,
 			allowNull: true
 		},
-		FBackupEMail: {
+		FMnemonicCode: {
 			type: DataTypes.STRING,
 			allowNull: true
 		},
-		FHomePhone: {
+		FBusiLicence: {
 			type: DataTypes.STRING,
 			allowNull: true
 		},
-		FOfficePhone: {
+		FBusiExequatur: {
 			type: DataTypes.STRING,
 			allowNull: true
 		},
-		FEMail: {
+		FGSPAuthentication: {
 			type: DataTypes.STRING,
 			allowNull: true
+		},
+		FCustomerKind: {
+			type: DataTypes.STRING,
+			allowNull: true
+		},
+		FForeignName: {
+			type: DataTypes.STRING,
+			allowNull: true
+		},
+		FAdminCUID: {
+			type: DataTypes.STRING,
+			allowNull: true
+		},
+		FAddress: {
+			type: DataTypes.STRING,
+			allowNull: true
+		},
+		FParentID: {
+			type: DataTypes.STRING,
+			allowNull: true
+		},
+		FInvoiceType: {
+			type: DataTypes.STRING,
+			allowNull: true
+		},
+		FIsCredited: {
+			type: DataTypes.INTEGER,
+			allowNull: false
+		},
+		FTaxRate: {
+			type: DataTypes.DECIMAL,
+			allowNull: false
+		},
+		FIsMultiCopy: {
+			type: DataTypes.INTEGER,
+			allowNull: true
+		},
+		FIsSwitch: {
+			type: DataTypes.INTEGER,
+			allowNull: false
 		}
 	}, {
-		tableName: 'T_PM_User'
+		tableName: 'T_BD_Customer',
+		timestamps: false
 	});
 };
