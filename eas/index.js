@@ -1,10 +1,12 @@
 var Sequelize = require('Sequelize');
 var sequelize = new Sequelize("mssql://szy0syz0yngf2017:xQnWdw3u4BOgwTuU@192.168.97.199:1433/YNNZ2011001_20160912");
 
-var T_IM_SaleIssueEntry = sequelize.import('./models/T_IM_SaleIssueEntry');
-var T_IM_SaleIssueBill = sequelize.import('./models/T_IM_SaleIssueBill');
-var T_BD_Customer = sequelize.import('./models/T_BD_Customer');
-var T_BD_PaymentType = sequelize.import('./models/T_BD_PaymentType');
+// var T_IM_SaleIssueEntry = sequelize.import('./models/T_IM_SaleIssueEntry');
+// var T_IM_SaleIssueBill = sequelize.import('./models/T_IM_SaleIssueBill');
+// var T_BD_Customer = sequelize.import('./models/T_BD_Customer');
+// var T_BD_PaymentType = sequelize.import('./models/T_BD_PaymentType');
+
+var SaleIssueEntry = sequelize.import('./models/SaleIssueEntry');
 
 var sql = 
 "    SELECT top 10" +
@@ -88,14 +90,14 @@ var sql =
              ") AS mgp1 ON mgp1.FMaterialID = se.FMaterialID "+
 "WHERE se.FStorageOrgUnitID IS NOT NULL";
 
-sequelize.query(sql)
-  .then(function(rows) {
-      console.log(Object.prototype.toString.call(rows[1]));
-      rows[0].forEach(function(value,index) {
-        console.log(value.FMaterial);
-      })    
-    //console.log(rows[0][0]); //array
-  })
+//{ type: sequelize.QueryTypes.SELECT} 只返回Sequelize查询到结果，不返回数据库的元数据。
+sequelize.query(sql, {
+    type: sequelize.QueryTypes.SELECT,
+    model: SaleIssueEntry
+    })
+    .then(function(rows) {
+        console.log(rows[0].FBrandFertilizer);
+    })
 
 // T_IM_SaleIssueBill.hasMany(T_IM_SaleIssueEntry, 
 //   {
