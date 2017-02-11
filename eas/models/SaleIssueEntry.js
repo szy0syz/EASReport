@@ -234,10 +234,3 @@ module.exports = function(sequelize, DataTypes) {
 		}
     });
 }
-
-
-
-// FName_L2: {
-// 			type: DataTypes.STRING,
-// 			allowNull: true
-// 		},

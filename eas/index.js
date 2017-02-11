@@ -1,11 +1,6 @@
 var Sequelize = require('Sequelize');
 var sequelize = new Sequelize("mssql://szy0syz0yngf2017:xQnWdw3u4BOgwTuU@192.168.97.199:1433/YNNZ2011001_20160912");
 
-// var T_IM_SaleIssueEntry = sequelize.import('./models/T_IM_SaleIssueEntry');
-// var T_IM_SaleIssueBill = sequelize.import('./models/T_IM_SaleIssueBill');
-// var T_BD_Customer = sequelize.import('./models/T_BD_Customer');
-// var T_BD_PaymentType = sequelize.import('./models/T_BD_PaymentType');
-
 var SaleIssueEntry = sequelize.import('./models/SaleIssueEntry');
 
 var sql = 
@@ -98,53 +93,3 @@ sequelize.query(sql, {
     .then(function(rows) {
         console.log(rows[0].FBrandFertilizer);
     })
-
-// T_IM_SaleIssueBill.hasMany(T_IM_SaleIssueEntry, 
-//   {
-//     as: 'se',
-//     foreignKey: 'FParentID',
-//     constraints: false
-//   });
-
-// T_IM_SaleIssueEntry.belongsTo(T_IM_SaleIssueBill, 
-//   {
-//     as: 'sb',
-//     foreignKey: 'FID',
-//     constraints: false
-//   });
-
-// T_BD_Customer.hasMany(T_IM_SaleIssueBill,{
-//   as: 'sb',
-//   foreignKey: 'FCustomerID',
-//   constraints: false
-// });
-
-// T_IM_SaleIssueBill.belongsTo(T_BD_Customer,{
-//   as: 'c',
-//   foreignKey: 'FID',
-//   constraints: false
-// });
-
-
-// T_IM_SaleIssueEntry
-//   .findAll({
-//     where: {
-//       FID: {$in: ["//+EZEEHQPa9cg9Rl1X+RbvAf74=","//0koJx+T06P5VxHU+YuWrvAf74="]}
-//     },
-//     include: [{
-//       model: T_IM_SaleIssueBill,
-//       as: "sb",
-//       required : false
-//     },
-//     {
-//         model: T_BD_Customer,
-//         as: "c",
-//         required: false
-//     }]
-//   })
-//   .then(function(rows) {
-//     console.log(rows.length);
-// })
-
-
-
