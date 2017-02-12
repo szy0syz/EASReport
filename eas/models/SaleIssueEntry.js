@@ -3,40 +3,41 @@
 
 module.exports = function(sequelize, DataTypes) {
 	return sequelize.define('SaleIssueEntry', {
+		//////////SaleIssueBill///////////
         FID: {
 			type: DataTypes.STRING,
 			allowNull: false,
 			primaryKey: true
 		},
-        FCustomer: {
+        FCustomer: { //单据头中的客户名称
 			type: DataTypes.STRING,
 			allowNull: true
 		},
-        FPaymentType: {
+        FPaymentType: { //付款方式
 			type: DataTypes.STRING,
 			allowNull: true
 		},
-        FStorageOrgUnit: {
+        FStorageOrgUnit: { //库存组织
 			type: DataTypes.STRING,
 			allowNull: true
 		},
-        FParentStorageOrgUnit: {
+        FParentStorageOrgUnit: { //上级库存组织
 			type: DataTypes.STRING,
 			allowNull: true
 		},
-        FTransactionType: {
+        FTransactionType: { //单据类型
 			type: DataTypes.STRING,
 			allowNull: true
 		},
-        FAuditTime: {
+        FAuditTime: { //审核时间
 			type: DataTypes.DATE,
 			allowNull: true
 		},
-        FAuditor: {
+        FAuditor: {  //审核人
 			type: DataTypes.STRING,
 			allowNull: true
 		},
-        FBaseStatus: {
+        FBaseStatus: {  //单据状态
 			type: DataTypes.INTEGER,
 			allowNull: true
 		},

@@ -12,7 +12,4 @@ var auto = new SequelizeAuto('YNNZ2011001_20160912', 'szy0syz0yngf2017', 'xQnWdw
 
 auto.run(function (err) {
   if (err) throw err;
- 
-//   console.log(auto.tables); // table list 
-//   console.log(auto.foreignKeys); // foreign key list 
 });
