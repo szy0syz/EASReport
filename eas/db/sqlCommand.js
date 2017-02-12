@@ -78,5 +78,7 @@ var sqlCommand =
                    "INNER JOIN dbo. T_BD_MaterialGroupStandard AS mgs ON mgd.FMaterialGroupStandardID = mgs.FID  "+
                    "WHERE mgs.FID = 'rxeYrJ6RSpquKqs0T4Jhs5eb4R8=' "+
              ") AS mgp1 ON mgp1.FMaterialID = se.FMaterialID "+
-"WHERE se.FStorageOrgUnitID IS NOT NULL" +
-    "and FID = ':FID'";
+"WHERE se.FStorageOrgUnitID IS NOT NULL " + 
+      "AND sb.FBizDate between :FBizDateStart and :FBizDateEnd"
+
+module.exports = sqlCommand;
