@@ -1,5 +1,6 @@
 var sqlCommand = 
-"    SELECT top 10" +
+"    SELECT "+
+            //   "top 100000 " +
 "             sb.FID ,c.FName_L2 as FCustomer, pt.FName_L2 as FPaymentType,bu.FName_L2 as FStorageOrgUnit , bu4. FParentUnit AS FParentStorageOrgUnit, "+
 "             tt.FName_L2 as FTransactionType,sb.FAuditTime , u1.FName_L2 as FAuditor ,  "+
 "             sb.FBaseStatus AS FBaseStatus ,bizt.FName_L2 as FBizType,  "+
@@ -78,7 +79,7 @@ var sqlCommand =
                    "INNER JOIN dbo. T_BD_MaterialGroupStandard AS mgs ON mgd.FMaterialGroupStandardID = mgs.FID  "+
                    "WHERE mgs.FID = 'rxeYrJ6RSpquKqs0T4Jhs5eb4R8=' "+
              ") AS mgp1 ON mgp1.FMaterialID = se.FMaterialID "+
-"WHERE se.FStorageOrgUnitID IS NOT NULL " + 
+"WHERE se.FStorageOrgUnitID IS NOT NULL AND sb.FControlUnitID = 'a06viCxSRPSu0pa/lIWabcznrtQ='  AND mgp.FMaterialGroupStandard != '非化肥' AND sb.FBaseStatus = 4" + 
       "AND sb.FBizDate between :FBizDateStart and :FBizDateEnd"
 
 module.exports = sqlCommand;
