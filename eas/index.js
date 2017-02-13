@@ -13,6 +13,20 @@ var query = sequelize.query(sqlCommand, {
     ,replacements: sqlConditions
 });
 
+/////////////
+Object.defineProperty(Array.prototype, 'group', {
+  enumerable: false,
+  value: function (key) {
+    var map = {};
+    this.map(e => ({k: key(e), d: e})).forEach(e => {
+      map[e.k] = map[e.k] || [];
+      map[e.k].push(e.d);
+    });
+    return Object.keys(map).map(k => ({key: k, data: map[k]}));
+  }
+});
+/////////////
+
 query.then(function(res) {
   var rept = {
     sumQty: 0,
@@ -38,9 +52,14 @@ query.then(function(res) {
 
   }
 
+  var array1 = res.group(item => item.FBrandCarbaMind);
+  
   //以后这里从数据库取，不要写死！
   var brandFString = ['尿素','碳铵','硫铵','氯化铵','硝磷铵','普钙','重钙','钙镁','磷铵','富钙','硫酸钾','氯化钾','硫酸钾肥','高含量','低含量']
   var brandF = [];
+
+  var brandC = [];
+  var tmpObj = {};
 
   brandFString.forEach(function(s,i) {
     var o = {
@@ -51,13 +70,6 @@ query.then(function(res) {
     brandF.push(o);
   })
 
-  //console.log(brandF);
-
-  var arrUrea = arrN = arrP = arrK = arrNPK = arrNPKh = [],
-    itemType = '';
-
-  console.log('rows: '+res.length);
-
   res.forEach(function(item, index) {
     brandF.forEach(function(brand,i) {
       if(item.FBrandFertilizer == brand.name) {
@@ -67,44 +79,26 @@ query.then(function(res) {
     });
   });
 
-  res.forEach(function(item, index) {
-    rept.sumQty +=  item.FBaseQty;
-    rept.sumAmount +=  item.FAmount;
-    itemType = item.FMaterialType0.split('_');
-    if(itemType[1] == '氮肥') {
-      arrN.push(item);
-      rept.sumNAmount += item.FAmount;
-      rept.sumNQty += item.FBaseQty;
-    }
-    if(itemType[2] == '尿素') {
-      arrUrea.push(item);
-      rept.sumUreaAmount += item.FAmount;
-      rept.sumUreaQty += item.FBaseQty;
-    }
-    if(itemType[1] == '磷肥') {
-      arrP.push(item);
-      rept.sumPAmount += item.FAmount;
-      rept.sumPQty += item.FBaseQty;
-    }
-    if(itemType[1] == '钾肥') {
-      arrP.push(item);
-      rept.sumKAmount += item.FAmount;
-      rept.sumKQty += item.FBaseQty;
-    }
-    if(itemType[1] == '复合肥') {
-      arrNPK.push(item);
-      rept.sumNPKAmount += item.FAmount;
-      rept.sumNPKQty += item.FBaseQty;
-    }
-    if(item.FBrandFertilizer == '高含量') {
-      arrNPKh.push(item);
-      rept.sumNPKhQty += item.FBaseQty;
-      rept.sumNPKhAmount += item.FAmount;
+  brandF.push({
+    name: '复合肥',
+    sumQty: brandF[13].sumQty+ brandF[14].sumQty,
+    sumAmount: brandF[13].sumAmount+ brandF[14].sumAmount,
+  })
+  
+  ///////////////////////
+  var newarr1 = res.filter(function(v) { return v.FBrandCarbaMind != '非尿素'}).group(i => i.FMaterialType3);
+
+  console.log(brandF)
+});
+
+function carbaMindStats (arr) {
+  var brandC = [];
+  arr.forEach(function(item) {
+    if(item.FBrandCarbaMind == '非尿素') {
     }
   });
+}
 
-  console.log(rept)
-});
 
 // // ---no~~~
 // function getData() {
