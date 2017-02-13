@@ -16,35 +16,83 @@ var query = sequelize.query(sqlCommand, {
 query.then(function(res) {
   var rept = {
     sumQty: 0,
-    sumFAmount: 0,
+    sumAmount: 0,
+
     sumNQty: 0,
     sumNAmount: 0,
-    averageN: 0,
-    sumP: 0,
-    averageP: 0,
-    sumK: 0,
-    averageK: 0,
-    sumNPK: 0,
-    averageNKP: 0
+
+    sumUreaQty: 0,
+    sumUreaAmount: 0,
+
+    sumPQty: 0,
+    sumPAmount: 0,
+
+    sumKQty: 0,
+    sumKAmount: 0,
+
+    sumNPKQty: 0,
+    sumNPKAmount: 0,
+
+    sumNPKhQty: 0,
+    sumNPKhAmount: 0
+
   }
-  var arrUrea = arrN = arrP = arrK = arrNPK = [],
+
+  var brandFString = ['尿素','碳铵','硫铵','氯化铵','硝磷铵','普钙','重钙','钙镁','磷铵','富钙','硫酸钾','氯化钾','硫酸钾肥','高含量','低含量']
+  var brandF = [];
+
+  brandFString.forEach(function(s,i) {
+    var o = {
+      name: s,
+      sumQty: 0,
+      sumAmount: 0
+    };
+    brandF.push(o);
+  })
+
+  console.log(brandF);
+
+  var arrUrea = arrN = arrP = arrK = arrNPK = arrNPKh = [],
     itemType = '';
 
   console.log('rows: '+res.length);
   res.forEach(function(item, index) {
     rept.sumQty +=  item.FBaseQty;
-    rept.sumFAmount +=  item.FAmount;
+    rept.sumAmount +=  item.FAmount;
     itemType = item.FMaterialType0.split('_');
     if(itemType[1] == '氮肥') {
-          arrN.push(item);
-          rept.sumNAmount += item.FAmount;
-          rept.sumNQty += item.FBaseQty;
-          rept.averageN += item.FPrice;
+      arrN.push(item);
+      rept.sumNAmount += item.FAmount;
+      rept.sumNQty += item.FBaseQty;
+    }
+    if(itemType[2] == '尿素') {
+      arrUrea.push(item);
+      rept.sumUreaAmount += item.FAmount;
+      rept.sumUreaQty += item.FBaseQty;
+    }
+    if(itemType[1] == '磷肥') {
+      arrP.push(item);
+      rept.sumPAmount += item.FAmount;
+      rept.sumPQty += item.FBaseQty;
+    }
+    if(itemType[1] == '钾肥') {
+      arrP.push(item);
+      rept.sumKAmount += item.FAmount;
+      rept.sumKQty += item.FBaseQty;
+    }
+    if(itemType[1] == '复合肥') {
+      arrNPK.push(item);
+      rept.sumNPKAmount += item.FAmount;
+      rept.sumNPKQty += item.FBaseQty;
+    }
+    if(item.FBrandFertilizer == '高含量') {
+      arrNPKh.push(item);
+      rept.sumNPKhQty += item.FBaseQty;
+      rept.sumNPKhAmount += item.FAmount;
     }
   });
-  rept.averageN = rept.averageN / rept.sumNQty;
-  console.log(rept.sumQty)
-  console.log(rept.sumFAmount)
+
+  console.log(rept)
 });
 
 // // ---no~~~
