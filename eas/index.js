@@ -38,6 +38,7 @@ query.then(function(res) {
 
   }
 
+  //以后这里从数据库取，不要写死！
   var brandFString = ['尿素','碳铵','硫铵','氯化铵','硝磷铵','普钙','重钙','钙镁','磷铵','富钙','硫酸钾','氯化钾','硫酸钾肥','高含量','低含量']
   var brandF = [];
 
@@ -50,12 +51,22 @@ query.then(function(res) {
     brandF.push(o);
   })
 
-  console.log(brandF);
+  //console.log(brandF);
 
   var arrUrea = arrN = arrP = arrK = arrNPK = arrNPKh = [],
     itemType = '';
 
   console.log('rows: '+res.length);
+
+  res.forEach(function(item, index) {
+    brandF.forEach(function(brand,i) {
+      if(item.FBrandFertilizer == brand.name) {
+        brand.sumQty += item.FBaseQty;
+        brand.sumAmount += item.FAmount;
+      }
+    });
+  });
+
   res.forEach(function(item, index) {
     rept.sumQty +=  item.FBaseQty;
     rept.sumAmount +=  item.FAmount;
