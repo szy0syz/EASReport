@@ -219,6 +219,10 @@ module.exports = function(sequelize, DataTypes) {
 			type: DataTypes.STRING,
 			allowNull: true
 		},
+        FMaterialType3: {
+			type: DataTypes.STRING,
+			allowNull: true
+		},
         FName_L2: {
 			type: DataTypes.STRING,
 			allowNull: true

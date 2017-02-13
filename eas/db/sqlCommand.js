@@ -18,7 +18,7 @@ var sqlCommand =
 "             cg.type1 as FCustomerType1, cg.type2 as FCustomerType2,  "+
 "             mg.FNumber as FMaterialNumber, mg.FName_l2 as FMaterial, mg.FModel AS FMaterialModel, mg.FDisplayName_L2 as FMaterialDisplayName, "+ 
 "             mg.type0 as FMaterialType0, mg.type1 as FMaterialType1, mg.type2 as FMaterialType2, mg.type3 as FMaterialType3, "+
-"             mgp.FMaterialGroupStandard AS FBrandFertilizer , mgp1.FMaterialGroupStandard AS FBrandCarbaMind "+
+"             mgp.FMaterialGroupStandard AS FBrandFertilizer, mgp1.FMaterialGroupStandard AS FBrandCarbaMind "+
 "from T_IM_SaleIssueEntry as se "+
 "left join T_IM_SaleIssueBill as sb on se.FParentID = sb.FID "+
 "left join T_BD_Customer as c on sb.FCustomerID = c.FID  "+
@@ -80,7 +80,7 @@ var sqlCommand =
                    "INNER JOIN dbo. T_BD_MaterialGroupStandard AS mgs ON mgd.FMaterialGroupStandardID = mgs.FID  "+
                    "WHERE mgs.FID = 'rxeYrJ6RSpquKqs0T4Jhs5eb4R8=' "+
              ") AS mgp1 ON mgp1.FMaterialID = se.FMaterialID "+
-"WHERE se.FStorageOrgUnitID IS NOT NULL AND sb.FControlUnitID = 'a06viCxSRPSu0pa/lIWabcznrtQ='  AND mgp.FMaterialGroupStandard != '非化肥' AND sb.FBaseStatus = 4" + 
+"WHERE se.FStorageOrgUnitID IS NOT NULL AND sb.FControlUnitID = 'a06viCxSRPSu0pa/lIWabcznrtQ='  AND mgp.FMaterialGroupStandard != '非化肥' AND sb.FBaseStatus = 4 " + 
       "AND sb.FBizDate between :FBizDateStart and :FBizDateEnd"
 
 module.exports = sqlCommand;

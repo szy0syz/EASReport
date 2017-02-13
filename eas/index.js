@@ -6,6 +6,10 @@ var SaleIssueEntry = sequelize.import('./models/SaleIssueEntry');
 var sqlCommand = require('./db/sqlCommand');
 var sqlConditions = require('./db/sqlConditions');
 
+var curDate = new Date(sqlConditions.FBizDateStart);
+var preDate = curDate.setYear(1);
+console.log(sqlConditions.FBizDateStart.split('-')[0]-1);
+
 //{ type: sequelize.QueryTypes.SELECT} 只返回Sequelize查询到结果，不返回数据库的元数据。
 var query = sequelize.query(sqlCommand, {
     type: sequelize.QueryTypes.SELECT,
@@ -59,7 +63,6 @@ query.then(function(res) {
   var brandF = [];
 
   var brandC = [];
-  var tmpObj = {};
 
   brandFString.forEach(function(s,i) {
     var o = {
@@ -86,18 +89,23 @@ query.then(function(res) {
   })
   
   ///////////////////////
-  var newarr1 = res.filter(function(v) { return v.FBrandCarbaMind != '非尿素'}).group(i => i.FMaterialType3);
+  var newarr1 = res.filter(function(v) { return v.FBrandCarbaMind != '非尿素'}).group(ii => ii.FMaterialType3);
+  var testarr = [1,2,3,4,5].reduce((acc, val) => { return acc + val}, 0);
+  newarr1.forEach(function(v1, i1) {
+    var o = {
+      name: v1.key,
+      sumQty: 0,
+      sumAmount: 0
+    }
+    console.log(v1.data.length); //reduce(function(pv, cv) { return pv + cv; }, 0);
+    o.sumQty = v1.data.reduce((acc, val) => { return acc + val.FBaseQty }, 0);
+    o.sumAmount = v1.data.reduce((acc, val) => { return acc + val.FAmount }, 0);
+    brandC.push(o);
+  });
 
   console.log(brandF)
 });
 
-function carbaMindStats (arr) {
-  var brandC = [];
-  arr.forEach(function(item) {
-    if(item.FBrandCarbaMind == '非尿素') {
-    }
-  });
-}
 
 
 // // ---no~~~
