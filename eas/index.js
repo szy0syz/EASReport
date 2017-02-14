@@ -7,7 +7,7 @@ var sqlCommand = require('./db/sqlCommand');
 var sqlConditions = require('./db/sqlConditions');
 
 var curDate = new Date(sqlConditions.FBizDateStart);
-var preDate = curDate.setYear(1);
+var preDate = new Date(curDate.getYear());
 console.log(sqlConditions.FBizDateStart.split('-')[0]-1);
 
 //{ type: sequelize.QueryTypes.SELECT} 只返回Sequelize查询到结果，不返回数据库的元数据。
@@ -62,7 +62,7 @@ query.then(function(res) {
   var brandFString = ['尿素','碳铵','硫铵','氯化铵','硝磷铵','普钙','重钙','钙镁','磷铵','富钙','硫酸钾','氯化钾','硫酸钾肥','高含量','低含量']
   var brandF = [];
 
-  var brandC = [];
+  var brandC = accObj = [];
 
   brandFString.forEach(function(s,i) {
     var o = {
@@ -98,8 +98,16 @@ query.then(function(res) {
       sumAmount: 0
     }
     console.log(v1.data.length); //reduce(function(pv, cv) { return pv + cv; }, 0);
-    o.sumQty = v1.data.reduce((acc, val) => { return acc + val.FBaseQty }, 0);
-    o.sumAmount = v1.data.reduce((acc, val) => { return acc + val.FAmount }, 0);
+    //o.sumQty = v1.data.reduce((acc, val) => { return acc + val.FBaseQty }, 0);
+    //o.sumAmount = v1.data.reduce((acc, val) => { return acc + val.FAmount }, 0);
+    // 一次循环求两个字段的和
+    accObj = v1.data.reduce((acc, val) => {
+      acc.sumQty += val.FBaseQty;
+      acc.sumAmount += val.FAmount; 
+      return acc;
+    }, {sumQty:0, sumAmount: 0});//初始化acc对象！
+    o.sumQty = accObj.sumQty;
+    o.sumAmount = accObj.sumAmount;
     brandC.push(o);
   });
 
