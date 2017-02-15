@@ -1,5 +1,6 @@
 var Sequelize = require('Sequelize');
 var Moment = require('moment');
+var Promise = require("bluebird");
 
 var sequelize = new Sequelize("mssql://szy0syz0yngf2017:xQnWdw3u4BOgwTuU@192.168.97.199:1433/YNNZ2011001");
 //var sequelize = new Sequelize("mssql://szy0syz0yngf2017:xQnWdw3u4BOgwTuU@192.168.97.199:1433/YNNZ2011001_20160912");
@@ -49,6 +50,12 @@ Object.defineProperty(Array.prototype, 'group', {
   }
 });
 /////////////
+
+
+
+Promise.join(query, queryCurtAcc ,queryLastAcc ,function(curtData, curtAccData, lastAccData){
+  console.log(curtData.length + '___' + curtAccData.length + '___' + lastAccData.length);
+});
 
 query.then(function(res) {
   var rept = {
@@ -132,7 +139,6 @@ query.then(function(res) {
 
   console.log(brandF)
 });
-
 
 
 // // ---no~~~
