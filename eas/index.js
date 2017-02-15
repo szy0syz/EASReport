@@ -3,7 +3,6 @@ var Moment = require('moment');
 var Promise = require("bluebird");
 
 var sequelize = new Sequelize("mssql://szy0syz0yngf2017:xQnWdw3u4BOgwTuU@192.168.97.199:1433/YNNZ2011001");
-//var sequelize = new Sequelize("mssql://szy0syz0yngf2017:xQnWdw3u4BOgwTuU@192.168.97.199:1433/YNNZ2011001_20160912");
 var SaleIssueEntry = sequelize.import('./models/SaleIssueEntry');
 
 var sqlCommand = require('./db/sqlCommand');
@@ -21,9 +20,8 @@ var queryCurtAcc = sequelize.query(sqlCommand, {
     type: sequelize.QueryTypes.SELECT,
     model: SaleIssueEntry,
     replacements: {
-      FBizDateStart: Moment(sqlConditions.FBizDateStart).set('month',0).format('YYYY-MM-DD'), //set month=1
+      FBizDateStart: Moment(sqlConditions.FBizDateStart).month(0).date(1).format('YYYY-MM-DD'), //set month=1
       FBizDateEnd: sqlConditions.FBizDateEnd
-
     }
 });
 
@@ -31,9 +29,8 @@ var queryLastAcc = sequelize.query(sqlCommand, {
     type: sequelize.QueryTypes.SELECT,
     model: SaleIssueEntry,
     replacements: {
-      FBizDateStart: Moment(sqlConditions.FBizDateStart).add(-1,'year').set('month',0).format('YYYY-MM-DD'), //set year-1, month=1
+      FBizDateStart: Moment(sqlConditions.FBizDateStart).add(-1,'year').month(0).date(1).format('YYYY-MM-DD'), //set year-1, month=1
       FBizDateEnd: Moment(sqlConditions.FBizDateEnd).add(-1,'year').format('YYYY-MM-DD')
-
     }
 });
 
@@ -82,30 +79,84 @@ function statFert(arrData) {
   return brandF;
 }
 
-function statUrea(arrDate) {
+function statUrea(arrData) {
   var brandC = accObj = [];
-  var newarr1 = arrDate.filter(function(v) { return v.FBrandCarbaMind != '非尿素'}).group(ii => ii.FMaterialType3);
-  newarr1.forEach(function(v1, i1) {
-    var o = {
-      name: v1.key,
-      sumQty: 0,
-      sumAmount: 0
-    }
-    // 一次循环求两个字段的和
-    accObj = v1.data.reduce((acc, val) => {
-      acc.sumQty += val.FBaseQty;
-      acc.sumAmount += val.FAmount; 
-      return acc;
-    }, {sumQty:0, sumAmount:0});//初始化acc对象！
-    o.sumQty = accObj.sumQty;
-    o.sumAmount = accObj.sumAmount;
-    brandC.push(o);
-  });
-  return brandC;
+  arrData
+    .filter(function(v) { return v.FBrandCarbaMind != '非尿素'})
+    .group(ii => ii.FMaterialType3)
+    .forEach(function(v1, i1) {
+      var o = {
+        name: v1.key,
+        sumQty: 0,
+        sumAmount: 0,
+        data: []
+      }
+      // 一次循环求两个字段的和
+      accObj = v1.data.reduce((acc, val) => {
+        acc.sumQty += val.FBaseQty;
+        acc.sumAmount += val.FAmount;
+        acc.data.push({
+          materialNumber: val.FMaterialNumber,
+          materialName: val.FMaterial,
+          materialModel: val.FMaterialModel,
+          qty: val.FBaseQty,
+          amount: val.FAmount
+        })
+        return acc;
+      }, {sumQty:0, sumAmount:0, data:[]});//初始化acc对象！
+      o.sumQty = accObj.sumQty;
+      o.sumAmount = accObj.sumAmount;
+      o.data = accObj.data;
+      brandC.push(o);
+    });
+    //返回处理结果
+    return brandC;
 }
 
+function sumByColumnName(arrData, cn) {
+  var sum = arrData.reduce((acc, val) => {
+    acc += val[cn];
+    return acc;
+  }, 0);
+  return sum;
+}
+
+
+
+function printSaleSummary(statRes, startDate) {
+  var sumUrea = statRes.statFertRes.filter((item) => {return item.name == '尿素'})[0].sumQty.toFixed(2) || 0;
+  var sumUreaDetails = statRes.statUreaRes
+    .reduce((acc, val) => {
+      acc.push(val.name + val.sumQty.toFixed(2) + "吨,单价" + (val.sumAmount/val.sumQty).toFixed(0));
+      return acc;
+    }, [])
+    .join(',');
+  var sumFert = statRes
+    .statFertRes.filter((item) => {return item.name != '尿素' && item.sumQty != 0})
+    .reduce((acc, val) => {
+      acc.push(val.name + val.sumQty.toFixed(2) + '吨');
+      return acc;
+    }, [])
+    .join(',');
+  var strSaleSummary = "销售：化肥总售出"+ statRes.sumCurtQty.toFixed(2) +"吨，"+ (statRes.sumCurtAmount/10000).toFixed(2) +"万元。其中尿素"+ 
+    sumUrea +"吨\（"+ sumUreaDetails +"），"
+    + sumFert +"。"+ startDate.split('-')[0] +"年累计销售"+ statRes.sumAccCurtQty.toFixed(2) +"吨，同比增长"+ ((statRes.sumAccCurtQty/statRes.sumAccLastQty)*100).toFixed() +"%；累计销额"+ (statRes.sumAccCurtAmount/10000).toFixed(2) +"万元，同比增长"+ ((statRes.sumAccCurtAmount/statRes.sumAccLastAmount)*100).toFixed() +"%（以销售出库单统计）。";
+  return strSaleSummary;
+}
+
+
 Promise.join(query, queryCurtAcc ,queryLastAcc ,function(curtData, curtAccData, lastAccData){
-  console.log(curtData.length + '___' + curtAccData.length + '___' + lastAccData.length);
-  var sum1 = statFert(curtData);
-  var sim2 = statUrea(curtData);
+  var statRes = {
+    sumCurtQty: sumByColumnName(curtData, 'FBaseQty'),
+    sumCurtAmount: sumByColumnName(curtData, 'FAmount'),
+    statFertRes: statFert(curtData),
+    statUreaRes: statUrea(curtData),
+    sumAccCurtQty: sumByColumnName(curtAccData,'FBaseQty'),
+    sumAccCurtAmount: sumByColumnName(curtAccData,'FAmount'),
+    sumAccLastQty: sumByColumnName(lastAccData,'FBaseQty'),
+    sumAccLastAmount: sumByColumnName(lastAccData,'FAmount')
+  };
+
+  var realRes = printSaleSummary(statRes, sqlConditions.FBizDateStart);
+  console.log(realRes);
 });
