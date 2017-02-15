@@ -1,4 +1,6 @@
 var Sequelize = require('Sequelize');
+var Moment = require('moment');
+
 var sequelize = new Sequelize("mssql://szy0syz0yngf2017:xQnWdw3u4BOgwTuU@192.168.97.199:1433/YNNZ2011001");
 //var sequelize = new Sequelize("mssql://szy0syz0yngf2017:xQnWdw3u4BOgwTuU@192.168.97.199:1433/YNNZ2011001_20160912");
 var SaleIssueEntry = sequelize.import('./models/SaleIssueEntry');
@@ -6,15 +8,32 @@ var SaleIssueEntry = sequelize.import('./models/SaleIssueEntry');
 var sqlCommand = require('./db/sqlCommand');
 var sqlConditions = require('./db/sqlConditions');
 
-var curDate = new Date(sqlConditions.FBizDateStart);
-var preDate = new Date(curDate.getYear());
-console.log(sqlConditions.FBizDateStart.split('-')[0]-1);
 
 //{ type: sequelize.QueryTypes.SELECT} 只返回Sequelize查询到结果，不返回数据库的元数据。
 var query = sequelize.query(sqlCommand, {
     type: sequelize.QueryTypes.SELECT,
-    model: SaleIssueEntry
-    ,replacements: sqlConditions
+    model: SaleIssueEntry,
+    replacements: sqlConditions
+});
+
+var queryCurtAcc = sequelize.query(sqlCommand, {
+    type: sequelize.QueryTypes.SELECT,
+    model: SaleIssueEntry,
+    replacements: {
+      FBizDateStart: Moment(sqlConditions.FBizDateStart).set('month',0).format('YYYY-MM-DD'), //set month=1
+      FBizDateEnd: sqlConditions.FBizDateEnd
+
+    }
+});
+
+var queryLastAcc = sequelize.query(sqlCommand, {
+    type: sequelize.QueryTypes.SELECT,
+    model: SaleIssueEntry,
+    replacements: {
+      FBizDateStart: Moment(sqlConditions.FBizDateStart).add(-1,'year').set('month',0).format('YYYY-MM-DD'), //set year-1, month=1
+      FBizDateEnd: Moment(sqlConditions.FBizDateEnd).add(-1,'year').format('YYYY-MM-DD')
+
+    }
 });
 
 /////////////
@@ -97,7 +116,7 @@ query.then(function(res) {
       sumQty: 0,
       sumAmount: 0
     }
-    console.log(v1.data.length); //reduce(function(pv, cv) { return pv + cv; }, 0);
+    //console.log(v1.data.length); //reduce(function(pv, cv) { return pv + cv; }, 0);
     //o.sumQty = v1.data.reduce((acc, val) => { return acc + val.FBaseQty }, 0);
     //o.sumAmount = v1.data.reduce((acc, val) => { return acc + val.FAmount }, 0);
     // 一次循环求两个字段的和
