@@ -10,13 +10,13 @@ var sqlConditions = require('./db/sqlConditions');
 
 
 //{ type: sequelize.QueryTypes.SELECT} 只返回Sequelize查询到结果，不返回数据库的元数据。
-var query = sequelize.query(sqlCommand, {
+var query = sequelize.query(sqlCommand.saleOut, {
     type: sequelize.QueryTypes.SELECT,
     model: SaleIssueEntry,
     replacements: sqlConditions
 });
 
-var queryCurtAcc = sequelize.query(sqlCommand, {
+var queryCurtAcc = sequelize.query(sqlCommand.saleOut, {
     type: sequelize.QueryTypes.SELECT,
     model: SaleIssueEntry,
     replacements: {
@@ -25,7 +25,31 @@ var queryCurtAcc = sequelize.query(sqlCommand, {
     }
 });
 
-var queryLastAcc = sequelize.query(sqlCommand, {
+var queryLastAcc = sequelize.query(sqlCommand.saleOut, {
+    type: sequelize.QueryTypes.SELECT,
+    model: SaleIssueEntry,
+    replacements: {
+      FBizDateStart: Moment(sqlConditions.FBizDateStart).add(-1,'year').month(0).date(1).format('YYYY-MM-DD'), //set year-1, month=1
+      FBizDateEnd: Moment(sqlConditions.FBizDateEnd).add(-1,'year').format('YYYY-MM-DD')
+    }
+});
+
+var queryPurIn = sequelize.query(sqlCommand.PruIn, {
+    type: sequelize.QueryTypes.SELECT,
+    model: SaleIssueEntry,
+    replacements: sqlConditions
+});
+
+var queryPurInCurtAcc = sequelize.query(sqlCommand.PruIn, {
+    type: sequelize.QueryTypes.SELECT,
+    model: SaleIssueEntry,
+    replacements: {
+      FBizDateStart: Moment(sqlConditions.FBizDateStart).month(0).date(1).format('YYYY-MM-DD'), //set month=1
+      FBizDateEnd: sqlConditions.FBizDateEnd
+    }
+});
+
+var queryPurInLastAcc = sequelize.query(sqlCommand.PruIn, {
     type: sequelize.QueryTypes.SELECT,
     model: SaleIssueEntry,
     replacements: {
@@ -121,8 +145,6 @@ function sumByColumnName(arrData, cn) {
   return sum;
 }
 
-
-
 function printSaleSummary(statRes, startDate) {
   var sumUrea = statRes.statFertRes.filter((item) => {return item.name == '尿素'})[0].sumQty.toFixed(2) || 0;
   var sumUreaDetails = statRes.statUreaRes
@@ -144,9 +166,29 @@ function printSaleSummary(statRes, startDate) {
   return strSaleSummary;
 }
 
+function printPurSummary(statRes, startDate) {
+  var sumUrea = statRes.statFertRes.filter((item) => {return item.name == '尿素'})[0].sumQty.toFixed(2) || 0;
+  var sumUreaDetails = statRes.statUreaRes
+    .reduce((acc, val) => {
+      acc.push(val.name + val.sumQty.toFixed(2) + "吨,单价" + (val.sumAmount/val.sumQty).toFixed(0));
+      return acc;
+    }, [])
+    .join(',');
+  var sumFert = statRes
+    .statFertRes.filter((item) => {return item.name != '尿素' && item.sumQty != 0})
+    .reduce((acc, val) => {
+      acc.push(val.name + val.sumQty.toFixed(2) + '吨');
+      return acc;
+    }, [])
+    .join(',');
+  var strSaleSummary = "购进：化肥总购进"+ statRes.sumCurtQty.toFixed(2) +"吨，"+ (statRes.sumCurtAmount/10000).toFixed(2) +"万元。其中尿素"+ 
+    sumUrea +"吨\（"+ sumUreaDetails +"），"
+    + sumFert +"。"+ startDate.split('-')[0] +"年累计总购"+ statRes.sumAccCurtQty.toFixed(2) +"吨，同比增长"+ ((statRes.sumAccCurtQty/statRes.sumAccLastQty)*100).toFixed() +"%；累计购额"+ (statRes.sumAccCurtAmount/10000).toFixed(2) +"万元，同比增长"+ ((statRes.sumAccCurtAmount/statRes.sumAccLastAmount)*100).toFixed() +"%（以采购入库单统计）。";
+  return strSaleSummary;
+}
 
-Promise.join(query, queryCurtAcc ,queryLastAcc ,function(curtData, curtAccData, lastAccData){
-  var statRes = {
+Promise.join(query, queryCurtAcc ,queryLastAcc, queryPurIn, queryPurInCurtAcc, queryPurInLastAcc, function(curtData, curtAccData, lastAccData, curtPurData, curtPurAccData, lastPurAccData){
+  var statSaleRes = {
     sumCurtQty: sumByColumnName(curtData, 'FBaseQty'),
     sumCurtAmount: sumByColumnName(curtData, 'FAmount'),
     statFertRes: statFert(curtData),
@@ -156,7 +198,18 @@ Promise.join(query, queryCurtAcc ,queryLastAcc ,function(curtData, curtAccData, 
     sumAccLastQty: sumByColumnName(lastAccData,'FBaseQty'),
     sumAccLastAmount: sumByColumnName(lastAccData,'FAmount')
   };
+  var statPurRes = {
+    sumCurtQty: sumByColumnName(curtPurData, 'FBaseQty'),
+    sumCurtAmount: sumByColumnName(curtPurData, 'FAmount'),
+    statFertRes: statFert(curtPurData),
+    statUreaRes: statUrea(curtPurData),
+    sumAccCurtQty: sumByColumnName(curtPurAccData,'FBaseQty'),
+    sumAccCurtAmount: sumByColumnName(curtPurAccData,'FAmount'),
+    sumAccLastQty: sumByColumnName(lastPurAccData,'FBaseQty'),
+    sumAccLastAmount: sumByColumnName(lastPurAccData,'FAmount')
+  };
 
-  var realRes = printSaleSummary(statRes, sqlConditions.FBizDateStart);
+  var saleRes = printSaleSummary(statSaleRes, sqlConditions.FBizDateStart);
+  var purRes = printPurSummary(statPurRes, sqlConditions.FBizDateStart);
   console.log(realRes);
 });
