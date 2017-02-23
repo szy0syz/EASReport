@@ -7,7 +7,7 @@ var sqlCommand_SaleOut =
 "             blt.FName_L2 as FBillType,sb.FYear , sb.FPeriod ,sb. FNumber,  "+
 "             sb.FBizDate ,u.FName_L2 as FCreator,sb.FCreateTime , bu1.FName_L2 as FControlUnit,  "+
 "             sb.FIsInTax ,sb.FMonth ,sb.FDay, bu2. FName_L2 as CFNZDepCash,  "+
-"             se.FTaxPrice ,FActualPrice ,  "+
+"             se.FTaxPrice , se.FAmount as FTaxAmount , FActualPrice ,  "+
 "             c1.FName_L2 as FBalanceCustomer,c2.FName_L2 as FOrderCustomer,c3.FName_L2 as FPaymentCustomer ,  "+
 "             bu3.FName_L2 as FCompanyOrgUnit,wh.FName_L2 as FWarehouse,"+
 "             se.FQty ,FBaseQty ,  "+

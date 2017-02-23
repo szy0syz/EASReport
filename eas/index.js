@@ -91,7 +91,7 @@ function statFert(arrData) {
     brandF.forEach(function(brand,i) {
       if(item.FBrandFertilizer == brand.name) {
         brand.sumQty += item.FBaseQty;
-        brand.sumAmount += item.FTaxAmount;  //修改为含税的
+        brand.sumAmount += item.FAmount;  //修改为含税的
       }
     });
   });

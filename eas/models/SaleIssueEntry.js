@@ -99,6 +99,10 @@ module.exports = function(sequelize, DataTypes) {
 			type: DataTypes.DECIMAL,
 			allowNull: false
 		},
+		FTaxAmount: {
+			type: DataTypes.DECIMAL,
+			allowNull: false
+		},
         FActualPrice: {
 			type: DataTypes.DECIMAL,
 			allowNull: false
