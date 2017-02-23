@@ -91,7 +91,7 @@ function statFert(arrData) {
     brandF.forEach(function(brand,i) {
       if(item.FBrandFertilizer == brand.name) {
         brand.sumQty += item.FBaseQty;
-        brand.sumAmount += item.FAmount;
+        brand.sumAmount += item.FTaxAmount;  //修改为含税的
       }
     });
   });
@@ -119,13 +119,13 @@ function statUrea(arrData) {
       // 一次循环求两个字段的和
       accObj = v1.data.reduce((acc, val) => {
         acc.sumQty += val.FBaseQty;
-        acc.sumAmount += val.FAmount;
+        acc.sumAmount += val.FTaxAmount;   //修改为含税的
         acc.data.push({
           materialNumber: val.FMaterialNumber,
           materialName: val.FMaterial,
           materialModel: val.FMaterialModel,
           qty: val.FBaseQty,
-          amount: val.FAmount
+          amount: val.FTaxAmount   //修改为含税的
         })
         return acc;
       }, {sumQty:0, sumAmount:0, data:[]});//初始化acc对象！
