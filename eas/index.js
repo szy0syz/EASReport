@@ -4,6 +4,7 @@ var Promise = require("bluebird");
 
 var sequelize = new Sequelize("mssql://szy0syz0yngf2017:xQnWdw3u4BOgwTuU@192.168.97.199:1433/YNNZ2011001");
 var SaleIssueEntry = sequelize.import('./models/SaleIssueEntry');
+var PurInEntry = sequelize.import('./models/PurInEntry');
 
 var sqlCommand = require('./db/sqlCommand');
 var sqlConditions = require('./db/sqlConditions');
@@ -36,13 +37,13 @@ var queryLastAcc = sequelize.query(sqlCommand.saleOut, {
 
 var queryPurIn = sequelize.query(sqlCommand.PruIn, {
     type: sequelize.QueryTypes.SELECT,
-    model: SaleIssueEntry,
+    model: PurInEntry,
     replacements: sqlConditions
 });
 
 var queryPurInCurtAcc = sequelize.query(sqlCommand.PruIn, {
     type: sequelize.QueryTypes.SELECT,
-    model: SaleIssueEntry,
+    model: PurInEntry,
     replacements: {
       FBizDateStart: Moment(sqlConditions.FBizDateStart).month(0).date(1).format('YYYY-MM-DD'), //set month=1
       FBizDateEnd: sqlConditions.FBizDateEnd
@@ -51,7 +52,7 @@ var queryPurInCurtAcc = sequelize.query(sqlCommand.PruIn, {
 
 var queryPurInLastAcc = sequelize.query(sqlCommand.PruIn, {
     type: sequelize.QueryTypes.SELECT,
-    model: SaleIssueEntry,
+    model: PurInEntry,
     replacements: {
       FBizDateStart: Moment(sqlConditions.FBizDateStart).add(-1,'year').month(0).date(1).format('YYYY-MM-DD'), //set year-1, month=1
       FBizDateEnd: Moment(sqlConditions.FBizDateEnd).add(-1,'year').format('YYYY-MM-DD')
@@ -200,16 +201,17 @@ Promise.join(query, queryCurtAcc ,queryLastAcc, queryPurIn, queryPurInCurtAcc, q
   };
   var statPurRes = {
     sumCurtQty: sumByColumnName(curtPurData, 'FBaseQty'),
-    sumCurtAmount: sumByColumnName(curtPurData, 'FAmount'),
+    sumCurtAmount: sumByColumnName(curtPurData, 'FTaxAmount'),
     statFertRes: statFert(curtPurData),
     statUreaRes: statUrea(curtPurData),
     sumAccCurtQty: sumByColumnName(curtPurAccData,'FBaseQty'),
-    sumAccCurtAmount: sumByColumnName(curtPurAccData,'FAmount'),
+    sumAccCurtAmount: sumByColumnName(curtPurAccData,'FTaxAmount'),
     sumAccLastQty: sumByColumnName(lastPurAccData,'FBaseQty'),
-    sumAccLastAmount: sumByColumnName(lastPurAccData,'FAmount')
+    sumAccLastAmount: sumByColumnName(lastPurAccData,'FTaxAmount')
   };
 
   var saleRes = printSaleSummary(statSaleRes, sqlConditions.FBizDateStart);
   var purRes = printPurSummary(statPurRes, sqlConditions.FBizDateStart);
-  console.log(realRes);
+  console.log(saleRes);
+  console.log(purRes);
 });
