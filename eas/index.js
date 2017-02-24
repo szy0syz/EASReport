@@ -216,7 +216,7 @@ function printSaleSummary(statRes, startDate) {
   var sumUrea = statRes.statFertRes.filter((item) => { return item.name == '尿素' })[0].sumQty.toFixed(2) || 0;
   var sumUreaDetails = statRes.statUreaRes
     .reduce((acc, val) => {
-      acc.push(val.name + val.sumQty.toFixed(2) + "吨,单价" + (val.sumAmount / val.sumQty).toFixed(0));
+      acc.push(val.name + '['+ val.model +']' + val.sumQty.toFixed(2) + "吨,单价" + (val.sumAmount / val.sumQty).toFixed(0));
       return acc;
     }, [])
     .join(',');
@@ -237,7 +237,7 @@ function printPurSummary(statRes, startDate) {
   var sumUrea = statRes.statFertRes.filter((item) => { return item.name == '尿素' })[0].sumQty.toFixed(2) || 0;
   var sumUreaDetails = statRes.statUreaRes
     .reduce((acc, val) => {
-      acc.push(val.name + val.sumQty.toFixed(2) + "吨,单价" + (val.sumAmount / val.sumQty).toFixed(0));
+      acc.push(val.name + '['+ val.model +']' + val.sumQty.toFixed(2) + "吨,单价" + (val.sumAmount / val.sumQty).toFixed(0));
       return acc;
     }, [])
     .join(',');
@@ -271,7 +271,7 @@ Promise.join(query, queryCurtAcc, queryLastAcc, queryPurIn, queryPurInCurtAcc, q
     sumCurtQty: sumByColumnName(curtPurData, 'FBaseQty'),
     sumCurtAmount: sumByColumnName(curtPurData, 'FTaxAmount'),
     statFertRes: statFert(curtPurData),
-    statUreaRes: statUrea(curtPurData),
+    statUreaRes: statDetails(curtData, (item) => {return item.FBrandCarbaMind != '非尿素'}, (item) => { return item.FMaterialType3}),
     sumAccCurtQty: sumByColumnName(curtPurAccData, 'FBaseQty'),
     sumAccCurtAmount: sumByColumnName(curtPurAccData, 'FTaxAmount'),
     sumAccLastQty: sumByColumnName(lastPurAccData, 'FBaseQty'),
