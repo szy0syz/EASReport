@@ -112,61 +112,70 @@ function statFert(arrData) {
     var o = {
       name: s,
       sumQty: 0,
-      sumAmount: 0
+      sumAmount: 0,
+      data: []
     };
     brandF.push(o);
   })
-  //根据数据分析
-  arrData.forEach(function (item, index) {
-    brandF.forEach(function (brand, i) {
+  //根据数据分析,待优化!
+  arrData.forEach(function (item) {
+    brandF.forEach(function (brand) {  // 这里brand其实就是brandF里的每一个元素，对其修改肯定会改变。
       if (item.FBrandFertilizer == brand.name) {
         brand.sumQty += item.FBaseQty;
         brand.sumAmount += item.FAmount;  //修改为含税的
+        brand.data.push(item);
       }
     });
   });
+  /////
+  //添加明细统计
+  brandF.forEach((val) => {
+    val.details = statDetails(val.data, (item) => {return item.FBrandFertilizer == val.name}, (item) => { return item.FMaterialType3})
+  });
+
   brandF.push({
     name: '复合肥',
     sumQty: brandF[13].sumQty + brandF[14].sumQty,
-    sumAmount: brandF[13].sumAmount + brandF[14].sumAmount,
+    sumAmount: brandF[13].sumAmount + brandF[14].sumAmount
   });
   //返回结果
   return brandF;
 }
 
-function statUrea(arrData) {
-  var brandC = accObj = [];
-  arrData
-    .filter(function (v) { return v.FBrandCarbaMind != '非尿素' })
-    .group(ii => ii.FMaterialType3)
-    .forEach(function (v1, i1) {
-      var o = {
-        name: v1.key,
-        sumQty: 0,
-        sumAmount: 0,
-        data: []
-      }
-      // 一次循环求两个字段的和
-      accObj = v1.data.reduce((acc, val) => {
-        acc.sumQty += val.FBaseQty;
-        acc.sumAmount += val.FTaxAmount;   //修改为含税的
-        acc.data.push({
-          materialNumber: val.FMaterialNumber,
-          materialName: val.FMaterial,
-          materialModel: val.FMaterialModel,
-          qty: val.FBaseQty,
-          amount: val.FTaxAmount   //修改为含税的
-        })
-        return acc;
-      }, { sumQty: 0, sumAmount: 0, data: [] }); //初始化acc对象！
-      o.sumQty = accObj.sumQty;
-      o.sumAmount = accObj.sumAmount;
-      o.data = accObj.data;
-      brandC.push(o);
-    });
-  //返回处理结果
-  return brandC;
-}
+// 这个算法已经被更新不用了
+// function statUrea(arrData) {
+//   var brandC = accObj = [];
+//   arrData
+//     .filter(function (v) { return v.FBrandCarbaMind != '非尿素' })
+//     .group(ii => ii.FMaterialType3)
+//     .forEach(function (v1, i1) {
+//       var o = {
+//         name: v1.key,
+//         sumQty: 0,
+//         sumAmount: 0,
+//         data: []
+//       }
+//       // 一次循环求两个字段的和
+//       accObj = v1.data.reduce((acc, val) => {
+//         acc.sumQty += val.FBaseQty;
+//         acc.sumAmount += val.FTaxAmount;   //修改为含税的
+//         acc.data.push({
+//           materialNumber: val.FMaterialNumber,
+//           materialName: val.FMaterial,
+//           materialModel: val.FMaterialModel,
+//           qty: val.FBaseQty,
+//           amount: val.FTaxAmount   //修改为含税的
+//         })
+//         return acc;
+//       }, { sumQty: 0, sumAmount: 0, data: [] }); //初始化acc对象！
+//       o.sumQty = accObj.sumQty;
+//       o.sumAmount = accObj.sumAmount;
+//       o.data = accObj.data;
+//       brandC.push(o);
+//     });
+//   //返回处理结果
+//   return brandC;
+// }
 
 /////////////////
 // 这个明细直接必须直接明细到具体物料,否这算法会出错.
@@ -212,7 +221,21 @@ function sumByColumnName(arrData, cn) {
   return sum;
 }
 
-function printSaleSummary(statRes, startDate) {
+////
+function printDetailsSummary(arrData) {  //数组要用reduce 一定要把空的剔除！
+  let sumDetailsReport;
+  if(arrData) {
+    sumDetailsReport = arrData
+                          .reduce((acc, val) => {
+                              acc.push(val.name + '['+ val.model +']' + val.sumQty.toFixed(2) + "吨,单价" + (val.sumAmount / val.sumQty).toFixed(0));                       
+                            return acc;
+                          }, [])
+                          .join(','); //以逗号相连
+  }
+  return sumDetailsReport;
+}
+
+function printSaleSummary1(statRes, startDate) {
   var sumUrea = statRes.statFertRes.filter((item) => { return item.name == '尿素' })[0].sumQty.toFixed(2) || 0;
   var sumUreaDetails = statRes.statUreaRes
     .reduce((acc, val) => {
@@ -233,24 +256,50 @@ function printSaleSummary(statRes, startDate) {
   return strSaleSummary;
 }
 
-function printPurSummary(statRes, startDate) {
-  var sumUrea = statRes.statFertRes.filter((item) => { return item.name == '尿素' })[0].sumQty.toFixed(2) || 0;
-  var sumUreaDetails = statRes.statUreaRes
-    .reduce((acc, val) => {
-      acc.push(val.name + '['+ val.model +']' + val.sumQty.toFixed(2) + "吨,单价" + (val.sumAmount / val.sumQty).toFixed(0));
-      return acc;
-    }, [])
-    .join(',');
+////
+function printSaleSummary(statRes, startDate) {
   var sumFert = statRes
     .statFertRes.filter((item) => { return item.name != '尿素' && item.sumQty != 0 })
     .reduce((acc, val) => {
-      acc.push(val.name + val.sumQty.toFixed(2) + '吨');
+      acc.push(val.name + val.sumQty.toFixed(2) + '吨' + "(" + printDetailsSummary(val.details) + ")");
       return acc;
     }, [])
     .join(',');
-  var strSaleSummary = "购进：化肥总购进" + statRes.sumCurtQty.toFixed(2) + "吨，" + (statRes.sumCurtAmount / 10000).toFixed(2) + "万元。其中尿素" +
-    sumUrea + "吨\（" + sumUreaDetails + "），"
-    + sumFert + "。" + startDate.split('-')[0] + "年累计总购" + statRes.sumAccCurtQty.toFixed(2) + "吨，同比增长" + ((statRes.sumAccCurtQty / statRes.sumAccLastQty) * 100).toFixed() + "%；累计购额" + (statRes.sumAccCurtAmount / 10000).toFixed(2) + "万元，同比增长" + ((statRes.sumAccCurtAmount / statRes.sumAccLastAmount) * 100).toFixed() + "%（以采购入库单统计）。";
+  var strSaleSummary = "销售：化肥总售出" + statRes.sumCurtQty.toFixed(2) + "吨，" + (statRes.sumCurtAmount / 10000).toFixed(2) + "万元。" +
+      sumFert + "。" + startDate.split('-')[0] + "年累计销售" + statRes.sumAccCurtQty.toFixed(2) + "吨，同比增长" + ((statRes.sumAccCurtQty / statRes.sumAccLastQty) * 100).toFixed() + "%；累计销额" + (statRes.sumAccCurtAmount / 10000).toFixed(2) + "万元，同比增长" + ((statRes.sumAccCurtAmount / statRes.sumAccLastAmount) * 100).toFixed() + "%（以销售出库单统计）。";
+  return strSaleSummary;
+}
+
+
+
+function printPurSummary(statRes, startDate) {
+  // var sumUrea = statRes.statFertRes.filter((item) => { return item.name == '尿素' })[0].sumQty.toFixed(2) || 0;
+  // var sumUreaDetails = statRes.statUreaRes
+  //   .reduce((acc, val) => {
+  //     acc.push(val.name + '['+ val.model +']' + val.sumQty.toFixed(2) + "吨,单价" + (val.sumAmount / val.sumQty).toFixed(0));
+  //     return acc;
+  //   }, [])
+  //   .join(',');
+  // var sumFert = statRes
+  //   .statFertRes.filter((item) => { return item.name != '尿素' && item.sumQty != 0 })
+  //   .reduce((acc, val) => {
+  //     acc.push(val.name + val.sumQty.toFixed(2) + '吨');
+  //     return acc;
+  //   }, [])
+  //   .join(',');
+  // var strSaleSummary = "购进：化肥总购进" + statRes.sumCurtQty.toFixed(2) + "吨，" + (statRes.sumCurtAmount / 10000).toFixed(2) + "万元。其中尿素" +
+  //   sumUrea + "吨\（" + sumUreaDetails + "），"
+  //   + sumFert + "。" + startDate.split('-')[0] + "年累计总购" + statRes.sumAccCurtQty.toFixed(2) + "吨，同比增长" + ((statRes.sumAccCurtQty / statRes.sumAccLastQty) * 100).toFixed() + "%；累计购额" + (statRes.sumAccCurtAmount / 10000).toFixed(2) + "万元，同比增长" + ((statRes.sumAccCurtAmount / statRes.sumAccLastAmount) * 100).toFixed() + "%（以采购入库单统计）。";
+  // return strSaleSummary;
+  let sumFert = statRes
+    .statFertRes.filter((item) => { return item.name != '尿素' && item.sumQty != 0 })
+    .reduce((acc, val) => {
+      acc.push(val.name + val.sumQty.toFixed(2) + '吨' + "(" + printDetailsSummary(val.details) + ")");
+      return acc;
+    }, [])
+    .join(',');
+  let strSaleSummary = "购进：化肥总购入" + statRes.sumCurtQty.toFixed(2) + "吨，" + (statRes.sumCurtAmount / 10000).toFixed(2) + "万元。" +
+      sumFert + "。" + startDate.split('-')[0] + "年累计销售" + statRes.sumAccCurtQty.toFixed(2) + "吨，同比增长" + ((statRes.sumAccCurtQty / statRes.sumAccLastQty) * 100).toFixed() + "%；累计销额" + (statRes.sumAccCurtAmount / 10000).toFixed(2) + "万元，同比增长" + ((statRes.sumAccCurtAmount / statRes.sumAccLastAmount) * 100).toFixed() + "%（以销售出库单统计）。";
   return strSaleSummary;
 }
 
@@ -265,7 +314,7 @@ Promise.join(query, queryCurtAcc, queryLastAcc, queryPurIn, queryPurInCurtAcc, q
     sumAccCurtAmount: sumByColumnName(curtAccData, 'FAmount'),
     sumAccLastQty: sumByColumnName(lastAccData, 'FBaseQty'),
     sumAccLastAmount: sumByColumnName(lastAccData, 'FAmount'),
-    statDetails1: statDetails(curtData,function(v) { return v.FBrandCarbaMind != '非尿素' },function(item) {return item.FMaterialNumber})
+    statDetails: statDetails(curtData,function(v) { return v.FBrandCarbaMind != '非尿素' },function(item) {return item.FMaterialNumber})
   };
   var statPurRes = {
     sumCurtQty: sumByColumnName(curtPurData, 'FBaseQty'),
@@ -275,11 +324,12 @@ Promise.join(query, queryCurtAcc, queryLastAcc, queryPurIn, queryPurInCurtAcc, q
     sumAccCurtQty: sumByColumnName(curtPurAccData, 'FBaseQty'),
     sumAccCurtAmount: sumByColumnName(curtPurAccData, 'FTaxAmount'),
     sumAccLastQty: sumByColumnName(lastPurAccData, 'FBaseQty'),
-    sumAccLastAmount: sumByColumnName(lastPurAccData, 'FTaxAmount')
+    sumAccLastAmount: sumByColumnName(lastPurAccData, 'FTaxAmount'),
+    statDetails: statDetails(curtData,function(v) { return v.FBrandCarbaMind != '非尿素' },function(item) {return item.FMaterialNumber})
   };
 
   var saleRes = printSaleSummary(statSaleRes, sqlConditions.FBizDateStart);
-  var purRes = printPurSummary(statPurRes, sqlConditions.FBizDateStart);
+  var purRes = printSaleSummary(statPurRes, sqlConditions.FBizDateStart);
   console.log(saleRes);
   console.log(purRes);
 });
