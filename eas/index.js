@@ -59,6 +59,12 @@ var queryPurInLastAcc = sequelize.query(sqlCommand.PruIn, {
   }
 });
 
+let query_Inventory = sequelize.query(sqlCommand.Inventory, {
+  type: sequelize.QueryTypes.SELECT,
+  model: InventoryEntry,
+  replacements: sqlConditions
+});
+
 /////////////
 Object.defineProperty(Array.prototype, 'group2', {
   enumerable: false,
@@ -273,24 +279,6 @@ function printSaleSummary(statRes, startDate) {
 
 
 function printPurSummary(statRes, startDate) {
-  // var sumUrea = statRes.statFertRes.filter((item) => { return item.name == '尿素' })[0].sumQty.toFixed(2) || 0;
-  // var sumUreaDetails = statRes.statUreaRes
-  //   .reduce((acc, val) => {
-  //     acc.push(val.name + '['+ val.model +']' + val.sumQty.toFixed(2) + "吨,单价" + (val.sumAmount / val.sumQty).toFixed(0));
-  //     return acc;
-  //   }, [])
-  //   .join(',');
-  // var sumFert = statRes
-  //   .statFertRes.filter((item) => { return item.name != '尿素' && item.sumQty != 0 })
-  //   .reduce((acc, val) => {
-  //     acc.push(val.name + val.sumQty.toFixed(2) + '吨');
-  //     return acc;
-  //   }, [])
-  //   .join(',');
-  // var strSaleSummary = "购进：化肥总购进" + statRes.sumCurtQty.toFixed(2) + "吨，" + (statRes.sumCurtAmount / 10000).toFixed(2) + "万元。其中尿素" +
-  //   sumUrea + "吨\（" + sumUreaDetails + "），"
-  //   + sumFert + "。" + startDate.split('-')[0] + "年累计总购" + statRes.sumAccCurtQty.toFixed(2) + "吨，同比增长" + ((statRes.sumAccCurtQty / statRes.sumAccLastQty) * 100).toFixed() + "%；累计购额" + (statRes.sumAccCurtAmount / 10000).toFixed(2) + "万元，同比增长" + ((statRes.sumAccCurtAmount / statRes.sumAccLastAmount) * 100).toFixed() + "%（以采购入库单统计）。";
-  // return strSaleSummary;
   let sumFert = statRes
     .statFertRes.filter((item) => { return item.name != '尿素' && item.sumQty != 0 })
     .reduce((acc, val) => {
@@ -299,7 +287,7 @@ function printPurSummary(statRes, startDate) {
     }, [])
     .join(',');
   let strSaleSummary = "购进：化肥总购入" + statRes.sumCurtQty.toFixed(2) + "吨，" + (statRes.sumCurtAmount / 10000).toFixed(2) + "万元。" +
-      sumFert + "。" + startDate.split('-')[0] + "年累计销售" + statRes.sumAccCurtQty.toFixed(2) + "吨，同比增长" + ((statRes.sumAccCurtQty / statRes.sumAccLastQty) * 100).toFixed() + "%；累计销额" + (statRes.sumAccCurtAmount / 10000).toFixed(2) + "万元，同比增长" + ((statRes.sumAccCurtAmount / statRes.sumAccLastAmount) * 100).toFixed() + "%（以销售出库单统计）。";
+      sumFert + "。" + startDate.split('-')[0] + "年累计购入" + statRes.sumAccCurtQty.toFixed(2) + "吨，同比增长" + ((statRes.sumAccCurtQty / statRes.sumAccLastQty) * 100).toFixed() + "%；累计销额" + (statRes.sumAccCurtAmount / 10000).toFixed(2) + "万元，同比增长" + ((statRes.sumAccCurtAmount / statRes.sumAccLastAmount) * 100).toFixed() + "%（以采购入库单统计）。";
   return strSaleSummary;
 }
 
@@ -308,8 +296,6 @@ Promise.join(query, queryCurtAcc, queryLastAcc, queryPurIn, queryPurInCurtAcc, q
     sumCurtQty: sumByColumnName(curtData, 'FBaseQty'),
     sumCurtAmount: sumByColumnName(curtData, 'FAmount'),
     statFertRes: statFert(curtData),
-    //statUreaRes: statUrea(curtData),
-    statUreaRes: statDetails(curtData, (item) => {return item.FBrandCarbaMind != '非尿素'}, (item) => { return item.FMaterialType3}),
     sumAccCurtQty: sumByColumnName(curtAccData, 'FBaseQty'),
     sumAccCurtAmount: sumByColumnName(curtAccData, 'FAmount'),
     sumAccLastQty: sumByColumnName(lastAccData, 'FBaseQty'),
@@ -320,7 +306,6 @@ Promise.join(query, queryCurtAcc, queryLastAcc, queryPurIn, queryPurInCurtAcc, q
     sumCurtQty: sumByColumnName(curtPurData, 'FBaseQty'),
     sumCurtAmount: sumByColumnName(curtPurData, 'FTaxAmount'),
     statFertRes: statFert(curtPurData),
-    statUreaRes: statDetails(curtData, (item) => {return item.FBrandCarbaMind != '非尿素'}, (item) => { return item.FMaterialType3}),
     sumAccCurtQty: sumByColumnName(curtPurAccData, 'FBaseQty'),
     sumAccCurtAmount: sumByColumnName(curtPurAccData, 'FTaxAmount'),
     sumAccLastQty: sumByColumnName(lastPurAccData, 'FBaseQty'),
@@ -329,7 +314,7 @@ Promise.join(query, queryCurtAcc, queryLastAcc, queryPurIn, queryPurInCurtAcc, q
   };
 
   var saleRes = printSaleSummary(statSaleRes, sqlConditions.FBizDateStart);
-  var purRes = printSaleSummary(statPurRes, sqlConditions.FBizDateStart);
+  var purRes = printPurSummary(statPurRes, sqlConditions.FBizDateStart);
   console.log(saleRes);
   console.log(purRes);
 });

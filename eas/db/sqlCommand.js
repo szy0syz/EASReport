@@ -129,7 +129,13 @@ var sqlCommand_PurIn = "SELECT " +
 "WHERE pe.FStorageOrgUnitID IS NOT NULL AND pb.FControlUnitID = 'a06viCxSRPSu0pa/lIWabcznrtQ='  AND mgp.FMaterialGroupStandard != '非化肥' AND pb.FBaseStatus = 4 " + 
       "AND pb.FBizDate between :FBizDateStart and :FBizDateEnd"
 
+//------------------------------------
+var sqlCommand_Inventory = "DECLARE	@return_value int " +
+                              "EXEC	@return_value = [dbo].[SZY_P_InertSZYTableData_plus] " +
+		                  "@FBizDateEnding = :FBizDateEnd";
+
 module.exports = {
   saleOut: sqlCommand_SaleOut,
-  PruIn: sqlCommand_PurIn
+  PruIn: sqlCommand_PurIn,
+  Inventory: sqlCommand_Inventory
 };
