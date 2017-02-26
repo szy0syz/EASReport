@@ -28,6 +28,11 @@ module.exports = function(sequelize, DataTypes) {
 			type: DataTypes.STRING,
 			allowNull: true
 		},
+		// 上级库存组织
+		FParentStorageOrgUnit: {
+			type: DataTypes.STRING,
+			allowNull: true
+		},
 		// 自定义化肥类别
 		FBrandFertilizer: {
 			type: DataTypes.STRING,
