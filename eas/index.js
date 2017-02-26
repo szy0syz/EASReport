@@ -2,64 +2,67 @@ var Sequelize = require('Sequelize');
 var Moment = require('moment');
 var Promise = require("bluebird");
 
-var sequelize = new Sequelize("mssql://szy0syz0yngf2017:xQnWdw3u4BOgwTuU@192.168.97.199:1433/YNNZ2011001");
+var sequelize = new Sequelize("mssql://szy0syz0yngf2017:xQnWdw3u4BOgwTuU@192.168.97.199:1433/YNNZ2011001",{dialectOptions: {
+    requestTimeout: 60*1000
+  }});
 var SaleIssueEntry = sequelize.import('./models/SaleIssueEntry');
 var PurInEntry = sequelize.import('./models/PurInEntry');
+let InventoryEntry = sequelize.import('./models/InventoryEntry');
 
 var sqlCommand = require('./db/sqlCommand');
 var sqlConditions = require('./db/sqlConditions');
 
 
 //{ type: sequelize.QueryTypes.SELECT} 只返回Sequelize查询到结果，不返回数据库的元数据。
-var query = sequelize.query(sqlCommand.saleOut, {
-  type: sequelize.QueryTypes.SELECT,
-  model: SaleIssueEntry,
-  replacements: sqlConditions
-});
+// var query = sequelize.query(sqlCommand.saleOut, {
+//   type: sequelize.QueryTypes.SELECT,
+//   model: SaleIssueEntry,
+//   replacements: sqlConditions
+// });
 
-var queryCurtAcc = sequelize.query(sqlCommand.saleOut, {
-  type: sequelize.QueryTypes.SELECT,
-  model: SaleIssueEntry,
-  replacements: {
-    FBizDateStart: Moment(sqlConditions.FBizDateStart).month(0).date(1).format('YYYY-MM-DD'), //set month=1
-    FBizDateEnd: sqlConditions.FBizDateEnd
-  }
-});
+// var queryCurtAcc = sequelize.query(sqlCommand.saleOut, {
+//   type: sequelize.QueryTypes.SELECT,
+//   model: SaleIssueEntry,
+//   replacements: {
+//     FBizDateStart: Moment(sqlConditions.FBizDateStart).month(0).date(1).format('YYYY-MM-DD'), //set month=1
+//     FBizDateEnd: sqlConditions.FBizDateEnd
+//   }
+// });
 
-var queryLastAcc = sequelize.query(sqlCommand.saleOut, {
-  type: sequelize.QueryTypes.SELECT,
-  model: SaleIssueEntry,
-  replacements: {
-    FBizDateStart: Moment(sqlConditions.FBizDateStart).add(-1, 'year').month(0).date(1).format('YYYY-MM-DD'), //set year-1, month=1
-    FBizDateEnd: Moment(sqlConditions.FBizDateEnd).add(-1, 'year').format('YYYY-MM-DD')
-  }
-});
+// var queryLastAcc = sequelize.query(sqlCommand.saleOut, {
+//   type: sequelize.QueryTypes.SELECT,
+//   model: SaleIssueEntry,
+//   replacements: {
+//     FBizDateStart: Moment(sqlConditions.FBizDateStart).add(-1, 'year').month(0).date(1).format('YYYY-MM-DD'), //set year-1, month=1
+//     FBizDateEnd: Moment(sqlConditions.FBizDateEnd).add(-1, 'year').format('YYYY-MM-DD')
+//   }
+// });
 
-var queryPurIn = sequelize.query(sqlCommand.PruIn, {
-  type: sequelize.QueryTypes.SELECT,
-  model: PurInEntry,
-  replacements: sqlConditions
-});
+// var queryPurIn = sequelize.query(sqlCommand.PruIn, {
+//   type: sequelize.QueryTypes.SELECT,
+//   model: PurInEntry,
+//   replacements: sqlConditions
+// });
 
-var queryPurInCurtAcc = sequelize.query(sqlCommand.PruIn, {
-  type: sequelize.QueryTypes.SELECT,
-  model: PurInEntry,
-  replacements: {
-    FBizDateStart: Moment(sqlConditions.FBizDateStart).month(0).date(1).format('YYYY-MM-DD'), //set month=1
-    FBizDateEnd: sqlConditions.FBizDateEnd
-  }
-});
+// var queryPurInCurtAcc = sequelize.query(sqlCommand.PruIn, {
+//   type: sequelize.QueryTypes.SELECT,
+//   model: PurInEntry,
+//   replacements: {
+//     FBizDateStart: Moment(sqlConditions.FBizDateStart).month(0).date(1).format('YYYY-MM-DD'), //set month=1
+//     FBizDateEnd: sqlConditions.FBizDateEnd
+//   }
+// });
 
-var queryPurInLastAcc = sequelize.query(sqlCommand.PruIn, {
-  type: sequelize.QueryTypes.SELECT,
-  model: PurInEntry,
-  replacements: {
-    FBizDateStart: Moment(sqlConditions.FBizDateStart).add(-1, 'year').month(0).date(1).format('YYYY-MM-DD'), //set year-1, month=1
-    FBizDateEnd: Moment(sqlConditions.FBizDateEnd).add(-1, 'year').format('YYYY-MM-DD')
-  }
-});
+// var queryPurInLastAcc = sequelize.query(sqlCommand.PruIn, {
+//   type: sequelize.QueryTypes.SELECT,
+//   model: PurInEntry,
+//   replacements: {
+//     FBizDateStart: Moment(sqlConditions.FBizDateStart).add(-1, 'year').month(0).date(1).format('YYYY-MM-DD'), //set year-1, month=1
+//     FBizDateEnd: Moment(sqlConditions.FBizDateEnd).add(-1, 'year').format('YYYY-MM-DD')
+//   }
+// });
 
-let query_Inventory = sequelize.query(sqlCommand.Inventory, {
+let queryInventory = sequelize.query(sqlCommand.Inventory, {
   type: sequelize.QueryTypes.SELECT,
   model: InventoryEntry,
   replacements: sqlConditions
@@ -79,20 +82,7 @@ Object.defineProperty(Array.prototype, 'group2', {
 });
 /////////////
 
-// Object.defineProperty(Array.prototype, 'group', {
-//   enumerable: false,
-//   value: function (key) {
-//     var map = {};
-//     this.forEach(function (e) {
-//       var k = key(e);
-//       map[k] = map[k] || [];
-//       map[k].push(e);
-//     });
-//     return Object.keys(map).map(function (k) {
-//       return {key: k, data: map[k]};
-//     });
-//   }
-// });
+
 
 Object.defineProperty(Array.prototype, 'group', {
   enumerable: false,
@@ -276,8 +266,6 @@ function printSaleSummary(statRes, startDate) {
   return strSaleSummary;
 }
 
-
-
 function printPurSummary(statRes, startDate) {
   let sumFert = statRes
     .statFertRes.filter((item) => { return item.name != '尿素' && item.sumQty != 0 })
@@ -290,31 +278,36 @@ function printPurSummary(statRes, startDate) {
       sumFert + "。" + startDate.split('-')[0] + "年累计购入" + statRes.sumAccCurtQty.toFixed(2) + "吨，同比增长" + ((statRes.sumAccCurtQty / statRes.sumAccLastQty) * 100).toFixed() + "%；累计销额" + (statRes.sumAccCurtAmount / 10000).toFixed(2) + "万元，同比增长" + ((statRes.sumAccCurtAmount / statRes.sumAccLastAmount) * 100).toFixed() + "%（以采购入库单统计）。";
   return strSaleSummary;
 }
-
-Promise.join(query, queryCurtAcc, queryLastAcc, queryPurIn, queryPurInCurtAcc, queryPurInLastAcc, function (curtData, curtAccData, lastAccData, curtPurData, curtPurAccData, lastPurAccData) {
-  var statSaleRes = {
-    sumCurtQty: sumByColumnName(curtData, 'FBaseQty'),
-    sumCurtAmount: sumByColumnName(curtData, 'FAmount'),
-    statFertRes: statFert(curtData),
-    sumAccCurtQty: sumByColumnName(curtAccData, 'FBaseQty'),
-    sumAccCurtAmount: sumByColumnName(curtAccData, 'FAmount'),
-    sumAccLastQty: sumByColumnName(lastAccData, 'FBaseQty'),
-    sumAccLastAmount: sumByColumnName(lastAccData, 'FAmount'),
-    statDetails: statDetails(curtData,function(v) { return v.FBrandCarbaMind != '非尿素' },function(item) {return item.FMaterialNumber})
-  };
-  var statPurRes = {
-    sumCurtQty: sumByColumnName(curtPurData, 'FBaseQty'),
-    sumCurtAmount: sumByColumnName(curtPurData, 'FTaxAmount'),
-    statFertRes: statFert(curtPurData),
-    sumAccCurtQty: sumByColumnName(curtPurAccData, 'FBaseQty'),
-    sumAccCurtAmount: sumByColumnName(curtPurAccData, 'FTaxAmount'),
-    sumAccLastQty: sumByColumnName(lastPurAccData, 'FBaseQty'),
-    sumAccLastAmount: sumByColumnName(lastPurAccData, 'FTaxAmount'),
-    statDetails: statDetails(curtData,function(v) { return v.FBrandCarbaMind != '非尿素' },function(item) {return item.FMaterialNumber})
-  };
-
-  var saleRes = printSaleSummary(statSaleRes, sqlConditions.FBizDateStart);
-  var purRes = printPurSummary(statPurRes, sqlConditions.FBizDateStart);
-  console.log(saleRes);
-  console.log(purRes);
+Promise.join(queryInventory,(invt) => {
+  console.log(invt.length);
 });
+
+
+
+// Promise.join(query, queryCurtAcc, queryLastAcc, queryPurIn, queryPurInCurtAcc, queryPurInLastAcc, function (curtData, curtAccData, lastAccData, curtPurData, curtPurAccData, lastPurAccData) {
+//   var statSaleRes = {
+//     sumCurtQty: sumByColumnName(curtData, 'FBaseQty'),
+//     sumCurtAmount: sumByColumnName(curtData, 'FAmount'),
+//     statFertRes: statFert(curtData),
+//     sumAccCurtQty: sumByColumnName(curtAccData, 'FBaseQty'),
+//     sumAccCurtAmount: sumByColumnName(curtAccData, 'FAmount'),
+//     sumAccLastQty: sumByColumnName(lastAccData, 'FBaseQty'),
+//     sumAccLastAmount: sumByColumnName(lastAccData, 'FAmount'),
+//     statDetails: statDetails(curtData,function(v) { return v.FBrandCarbaMind != '非尿素' },function(item) {return item.FMaterialNumber})
+//   };
+//   var statPurRes = {
+//     sumCurtQty: sumByColumnName(curtPurData, 'FBaseQty'),
+//     sumCurtAmount: sumByColumnName(curtPurData, 'FTaxAmount'),
+//     statFertRes: statFert(curtPurData),
+//     sumAccCurtQty: sumByColumnName(curtPurAccData, 'FBaseQty'),
+//     sumAccCurtAmount: sumByColumnName(curtPurAccData, 'FTaxAmount'),
+//     sumAccLastQty: sumByColumnName(lastPurAccData, 'FBaseQty'),
+//     sumAccLastAmount: sumByColumnName(lastPurAccData, 'FTaxAmount'),
+//     statDetails: statDetails(curtData,function(v) { return v.FBrandCarbaMind != '非尿素' },function(item) {return item.FMaterialNumber})
+//   };
+
+//   var saleRes = printSaleSummary(statSaleRes, sqlConditions.FBizDateStart);
+//   var purRes = printPurSummary(statPurRes, sqlConditions.FBizDateStart);
+//   console.log(saleRes);
+//   console.log(purRes);
+// });
