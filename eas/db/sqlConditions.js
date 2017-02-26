@@ -1,6 +1,6 @@
 var sqlConditions = {
-    FBizDateStart: '2017-01-10',
-    FBizDateEnd:   '2017-01-10'
+    FBizDateStart: '2017-02-08',
+    FBizDateEnd:   '2017-02-08'
 }
 
 module.exports = sqlConditions;

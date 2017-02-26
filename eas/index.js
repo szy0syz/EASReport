@@ -217,6 +217,74 @@ function sumByColumnName(arrData, cn) {
   return sum;
 }
 
+////CorrStorageOrgUnit
+function statInventory(arrData, options) {
+  let statRes = {
+    sumFertQty: 0,
+    sumUreaQty: 0,
+    summaryFert: [],
+    summartUrea: [],
+    detailUrea: []
+  }
+  ///////为了把直营店数据联合进分公司
+  arrData.map((item) => {
+    if(item.FParentStorageOrgUnit == '云南供销农资连锁总部') {
+      item.CorrStorageOrgUnit = item.FShopAttributionUnit;
+    }
+    else if(item.FParentStorageOrgUnit == '分公司') {
+      item.CorrStorageOrgUnit = item.FStorageOrgUnit;
+    }
+    else {
+      item.CorrStorageOrgUnit = item.FParentStorageOrgUnit;
+    }
+  });
+
+  // arrDataOri代表未分组时库存物料信息
+  let arrDataOri = arrData.slice(); //复制数组
+  ///////////////////统计化肥总概括
+  if(options.filter) {
+    arrData = arrData.filter(options.filter);
+  }
+  if(options.group) {
+    arrData = arrData.group(options.group);
+  }
+  arrData.map((item) => {
+    item.sumQty = sumByColumnName(item.data, 'FInventoryEndQty');
+  });
+  statRes.summaryFert = arrData.slice(); //复制数组
+  statRes.sumFertQty = sumByColumnName(arrData, 'sumQty');
+  ///////////////////
+  arrData = [];
+  arrData = arrDataOri.slice();
+  arrData = arrData
+    .filter((item) => { return item.FBrandFertilizer == '尿素'; })
+    .group((item) => { return item.CorrStorageOrgUnit;  })
+  arrData.map((item) => {
+    item.sumQty = sumByColumnName(item.data, 'FInventoryEndQty');
+  });
+  statRes.summartUrea = arrData.slice(); //复制数组
+  statRes.sumUreaQty = sumByColumnName(arrData, 'sumQty');
+  ///////////////////
+  arrData = [];
+  arrData = arrDataOri.slice();
+  arrData
+    .filter((item) => { return item.FBrandFertilizer == '尿素'; })
+    .group((item) => { return item.FMaterial;  }) //这里以物料名称为分组，相同名称不同规格的物料会被合并！
+    .map((item) => {
+      let o = {
+        key: item.key,
+        name: item.key,
+        number: item.data[0].FNumber,
+        sumQty: sumByColumnName(item.data, 'FInventoryEndQty')
+      };
+      statRes.detailUrea.push(o);
+    })
+  
+  //////////////////
+  return statRes;
+}
+
+
 ////
 function printDetailsSummary(arrData) {  //数组要用reduce 一定要把空的剔除！
   let sumDetailsReport;
@@ -278,8 +346,30 @@ function printPurSummary(statRes, startDate) {
       sumFert + "。" + startDate.split('-')[0] + "年累计购入" + statRes.sumAccCurtQty.toFixed(2) + "吨，同比增长" + ((statRes.sumAccCurtQty / statRes.sumAccLastQty) * 100).toFixed() + "%；累计销额" + (statRes.sumAccCurtAmount / 10000).toFixed(2) + "万元，同比增长" + ((statRes.sumAccCurtAmount / statRes.sumAccLastAmount) * 100).toFixed() + "%（以采购入库单统计）。";
   return strSaleSummary;
 }
+
+function printInvtSummary(statRes, endDate) {
+  let fert = '化肥总库存'+ statRes.sumFertQty.toFixed(0) +'吨（其中'
+    + statRes.summaryFert.reduce((acc, val) => {acc.push(val.key + val.sumQty.toFixed(0) + "吨"); return acc;}, []).join(',')
+    + ')， '
+    + '尿素'+ statRes.sumUreaQty.toFixed(0) +'吨（其中'
+    + statRes.summartUrea.reduce((acc, val) => {acc.push(val.key + val.sumQty.toFixed(0) + "吨"); return acc;}, []).join(',')
+    + ')， '
+    + '其中'
+    + statRes.detailUrea.reduce((acc, val) => {acc.push(val.key + val.sumQty.toFixed(0) + "吨"); return acc;}, []).join(',')
+    + ')';
+    return fert;
+}
+
+
 Promise.join(queryInventory,(invt) => {
-  console.log(invt.length);
+  let res = statInventory(invt, {
+    group: function (item) {
+      return item.CorrStorageOrgUnit;
+    }
+  });
+
+  console.log(printInvtSummary(res));
+
 });
 
 
