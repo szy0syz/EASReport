@@ -147,9 +147,22 @@ module.exports = function(sequelize, DataTypes) {
 		FShopAttributionUnit: {
 			type: DataTypes.STRING,
 			allowNull: true
-		}
-		
-		
-		
+		},
+		FMaterialType0: {
+			type: DataTypes.STRING,
+			allowNull: true
+		},
+		FMaterialType1: {
+			type: DataTypes.STRING,
+			allowNull: true
+		},
+		FMaterialType2: {
+			type: DataTypes.STRING,
+			allowNull: true
+		},
+		FMaterialType3: {
+			type: DataTypes.STRING,
+			allowNull: true
+		}	
     });
 }

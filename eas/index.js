@@ -211,7 +211,7 @@ function statDetails(arrData, filter, group) {
 
 function sumByColumnName(arrData, cn) {
   let sum = arrData.reduce((acc, val) => {
-    acc += val[cn];
+    acc += Number(val[cn]);
     return acc;
   }, 0);
   return sum;
@@ -265,7 +265,8 @@ function statInventory(arrData, options) {
     summaryFert: [],
     summartUrea: [],
     detailUrea: [],
-    detailFert: []
+    detailFert: [],
+    detailOtherFert: []
   }
   ///////为了把直营店数据联合进分公司
   arrData.map((item) => {
@@ -329,13 +330,13 @@ function statInventory(arrData, options) {
       statRes.detailUrea.push(o);
     })
   
-  //////////////////统计除了尿素以外的品牌化肥，其中分为进出口和分公司两档。
+  //////////////////统计除了尿素和其他化肥以外的品牌化肥，其中分为进出口和分公司两档。
   // 分两种情况，一种进出口部没库存，第二种进出口部和分公司各有库存！
   // return: [{key:xxx, data:[{name:'分公司', sum:xx}, {name:'进出口部', sum:xx}]}, {key:yyy, data:[{name:'分公司', sum:yy}]} ]
   arrData = [];
   arrData = arrDataOri.slice();
   arrData = arrData
-    .filter((item) => { return item.FBrandFertilizer != '尿素'; })
+    .filter((item) => { return item.FBrandFertilizer != '尿素' && item.FBrandFertilizer != '其他'; })
     .group((item) => { return item.FBrandFertilizer; }) // 这里已经按品牌化肥分好类，格式为[{key: FBrandFertilizer, data:[....]},{key: FBrandFertilizer, data:[....]}]
     .reduce((acc, val) => {
       let arr = filterAndGroupAndSumByColumn(val.data, { //这里有问题！
@@ -351,6 +352,20 @@ function statInventory(arrData, options) {
       return acc;
     }, []);
   statRes.detailFert = arrData
+  ////////////////////////////////
+  arrData = [];
+  arrData = arrDataOri.slice();
+  arrData = arrData
+    .filter((item) => { return item.FBrandFertilizer == '其他'; })
+    .group((item) => { return item.FMaterialType2; }) // 这里已经按品牌化肥分好类，格式为[{key: FMaterialType2, data:[....]},{key: FMaterialType2, data:[....]}]
+    .reduce((acc, val) => {
+      acc.push({
+        name: val.key,
+        sum: sumByColumnName(val.data, 'FInventoryEndQty').toFixed(1)
+      })
+      return acc;
+    }, []);
+  statRes.detailOtherFert = arrData
 
   return statRes;
 }
@@ -431,48 +446,52 @@ function printInvtSummary(statRes, endDate) {
     + statRes.detailFert.reduce((acc, val) => {
       if(val.data.length == 1) acc.push(val.key + val.data[0].sum.toFixed(1) + '吨');
       else {
-        let tmp = val.key + sumByColumnName(val.data, 'sum').toFixed(1) + '吨';
-        tmp += '(' + val.data.reduce((a, v) => {a.push(v.name + v.sum.toFixed(1));return a;}, []).join(',') + ')';
-        acc.push(tmp);
+        acc.push(val.key + sumByColumnName(val.data, 'sum').toFixed(1) + '吨' + '(' + val.data.reduce((a, v) => {a.push(v.name + v.sum.toFixed(1));return a;}, []).join(',') + ')');
       }
       return acc;
-    },[]).join(',');
+    },[]).join(',')
+    + '，'
+    + '其他肥' + sumByColumnName(statRes.detailOtherFert, 'sum').toFixed(0) + '吨（'
+    + statRes.detailOtherFert.reduce((acc, val) => {acc.push(val.name + val.sum + '吨');return acc;},[]).join(',')
+    + ')。 ';
     return fert;
 }
 
 
-Promise.join(queryInventory,(invt) => {
-  let res = statInventory(invt);
-  console.log(printInvtSummary(res));
+// Promise.join(queryInventory,(invt) => {
+//   let res = statInventory(invt);
+//   console.log(printInvtSummary(res));
 
-});
-
-
-
-// Promise.join(query, queryCurtAcc, queryLastAcc, queryPurIn, queryPurInCurtAcc, queryPurInLastAcc, function (curtData, curtAccData, lastAccData, curtPurData, curtPurAccData, lastPurAccData) {
-//   var statSaleRes = {
-//     sumCurtQty: sumByColumnName(curtData, 'FBaseQty'),
-//     sumCurtAmount: sumByColumnName(curtData, 'FAmount'),
-//     statFertRes: statFert(curtData),
-//     sumAccCurtQty: sumByColumnName(curtAccData, 'FBaseQty'),
-//     sumAccCurtAmount: sumByColumnName(curtAccData, 'FAmount'),
-//     sumAccLastQty: sumByColumnName(lastAccData, 'FBaseQty'),
-//     sumAccLastAmount: sumByColumnName(lastAccData, 'FAmount'),
-//     statDetails: statDetails(curtData,function(v) { return v.FBrandCarbaMind != '非尿素' },function(item) {return item.FMaterialNumber})
-//   };
-//   var statPurRes = {
-//     sumCurtQty: sumByColumnName(curtPurData, 'FBaseQty'),
-//     sumCurtAmount: sumByColumnName(curtPurData, 'FTaxAmount'),
-//     statFertRes: statFert(curtPurData),
-//     sumAccCurtQty: sumByColumnName(curtPurAccData, 'FBaseQty'),
-//     sumAccCurtAmount: sumByColumnName(curtPurAccData, 'FTaxAmount'),
-//     sumAccLastQty: sumByColumnName(lastPurAccData, 'FBaseQty'),
-//     sumAccLastAmount: sumByColumnName(lastPurAccData, 'FTaxAmount'),
-//     statDetails: statDetails(curtData,function(v) { return v.FBrandCarbaMind != '非尿素' },function(item) {return item.FMaterialNumber})
-//   };
-
-//   var saleRes = printSaleSummary(statSaleRes, sqlConditions.FBizDateStart);
-//   var purRes = printPurSummary(statPurRes, sqlConditions.FBizDateStart);
-//   console.log(saleRes);
-//   console.log(purRes);
 // });
+
+
+
+Promise.join(query, queryCurtAcc, queryLastAcc, queryPurIn, queryPurInCurtAcc, queryPurInLastAcc, queryInventory, function (curtData, curtAccData, lastAccData, curtPurData, curtPurAccData, lastPurAccData, invtData) {
+  var statSaleRes = {
+    sumCurtQty: sumByColumnName(curtData, 'FBaseQty'),
+    sumCurtAmount: sumByColumnName(curtData, 'FAmount'),
+    statFertRes: statFert(curtData),
+    sumAccCurtQty: sumByColumnName(curtAccData, 'FBaseQty'),
+    sumAccCurtAmount: sumByColumnName(curtAccData, 'FAmount'),
+    sumAccLastQty: sumByColumnName(lastAccData, 'FBaseQty'),
+    sumAccLastAmount: sumByColumnName(lastAccData, 'FAmount'),
+    statDetails: statDetails(curtData,function(v) { return v.FBrandCarbaMind != '非尿素' },function(item) {return item.FMaterialNumber})
+  };
+  var statPurRes = {
+    sumCurtQty: sumByColumnName(curtPurData, 'FBaseQty'),
+    sumCurtAmount: sumByColumnName(curtPurData, 'FTaxAmount'),
+    statFertRes: statFert(curtPurData),
+    sumAccCurtQty: sumByColumnName(curtPurAccData, 'FBaseQty'),
+    sumAccCurtAmount: sumByColumnName(curtPurAccData, 'FTaxAmount'),
+    sumAccLastQty: sumByColumnName(lastPurAccData, 'FBaseQty'),
+    sumAccLastAmount: sumByColumnName(lastPurAccData, 'FTaxAmount'),
+    statDetails: statDetails(curtData,function(v) { return v.FBrandCarbaMind != '非尿素' },function(item) {return item.FMaterialNumber})
+  };
+
+  var saleRes = printSaleSummary(statSaleRes, sqlConditions.FBizDateStart);
+  var purRes = printPurSummary(statPurRes, sqlConditions.FBizDateStart);
+  let invtRes = printInvtSummary(statInventory(invtData));
+  console.log(saleRes);
+  console.log(purRes);
+  console.log(invtRes);
+});
