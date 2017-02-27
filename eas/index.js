@@ -14,53 +14,53 @@ var sqlConditions = require('./db/sqlConditions');
 
 
 //{ type: sequelize.QueryTypes.SELECT} 只返回Sequelize查询到结果，不返回数据库的元数据。
-// var query = sequelize.query(sqlCommand.saleOut, {
-//   type: sequelize.QueryTypes.SELECT,
-//   model: SaleIssueEntry,
-//   replacements: sqlConditions
-// });
+var query = sequelize.query(sqlCommand.saleOut, {
+  type: sequelize.QueryTypes.SELECT,
+  model: SaleIssueEntry,
+  replacements: sqlConditions
+});
 
-// var queryCurtAcc = sequelize.query(sqlCommand.saleOut, {
-//   type: sequelize.QueryTypes.SELECT,
-//   model: SaleIssueEntry,
-//   replacements: {
-//     FBizDateStart: Moment(sqlConditions.FBizDateStart).month(0).date(1).format('YYYY-MM-DD'), //set month=1
-//     FBizDateEnd: sqlConditions.FBizDateEnd
-//   }
-// });
+var queryCurtAcc = sequelize.query(sqlCommand.saleOut, {
+  type: sequelize.QueryTypes.SELECT,
+  model: SaleIssueEntry,
+  replacements: {
+    FBizDateStart: Moment(sqlConditions.FBizDateStart).month(0).date(1).format('YYYY-MM-DD'), //set month=1
+    FBizDateEnd: sqlConditions.FBizDateEnd
+  }
+});
 
-// var queryLastAcc = sequelize.query(sqlCommand.saleOut, {
-//   type: sequelize.QueryTypes.SELECT,
-//   model: SaleIssueEntry,
-//   replacements: {
-//     FBizDateStart: Moment(sqlConditions.FBizDateStart).add(-1, 'year').month(0).date(1).format('YYYY-MM-DD'), //set year-1, month=1
-//     FBizDateEnd: Moment(sqlConditions.FBizDateEnd).add(-1, 'year').format('YYYY-MM-DD')
-//   }
-// });
+var queryLastAcc = sequelize.query(sqlCommand.saleOut, {
+  type: sequelize.QueryTypes.SELECT,
+  model: SaleIssueEntry,
+  replacements: {
+    FBizDateStart: Moment(sqlConditions.FBizDateStart).add(-1, 'year').month(0).date(1).format('YYYY-MM-DD'), //set year-1, month=1
+    FBizDateEnd: Moment(sqlConditions.FBizDateEnd).add(-1, 'year').format('YYYY-MM-DD')
+  }
+});
 
-// var queryPurIn = sequelize.query(sqlCommand.PruIn, {
-//   type: sequelize.QueryTypes.SELECT,
-//   model: PurInEntry,
-//   replacements: sqlConditions
-// });
+var queryPurIn = sequelize.query(sqlCommand.PruIn, {
+  type: sequelize.QueryTypes.SELECT,
+  model: PurInEntry,
+  replacements: sqlConditions
+});
 
-// var queryPurInCurtAcc = sequelize.query(sqlCommand.PruIn, {
-//   type: sequelize.QueryTypes.SELECT,
-//   model: PurInEntry,
-//   replacements: {
-//     FBizDateStart: Moment(sqlConditions.FBizDateStart).month(0).date(1).format('YYYY-MM-DD'), //set month=1
-//     FBizDateEnd: sqlConditions.FBizDateEnd
-//   }
-// });
+var queryPurInCurtAcc = sequelize.query(sqlCommand.PruIn, {
+  type: sequelize.QueryTypes.SELECT,
+  model: PurInEntry,
+  replacements: {
+    FBizDateStart: Moment(sqlConditions.FBizDateStart).month(0).date(1).format('YYYY-MM-DD'), //set month=1
+    FBizDateEnd: sqlConditions.FBizDateEnd
+  }
+});
 
-// var queryPurInLastAcc = sequelize.query(sqlCommand.PruIn, {
-//   type: sequelize.QueryTypes.SELECT,
-//   model: PurInEntry,
-//   replacements: {
-//     FBizDateStart: Moment(sqlConditions.FBizDateStart).add(-1, 'year').month(0).date(1).format('YYYY-MM-DD'), //set year-1, month=1
-//     FBizDateEnd: Moment(sqlConditions.FBizDateEnd).add(-1, 'year').format('YYYY-MM-DD')
-//   }
-// });
+var queryPurInLastAcc = sequelize.query(sqlCommand.PruIn, {
+  type: sequelize.QueryTypes.SELECT,
+  model: PurInEntry,
+  replacements: {
+    FBizDateStart: Moment(sqlConditions.FBizDateStart).add(-1, 'year').month(0).date(1).format('YYYY-MM-DD'), //set year-1, month=1
+    FBizDateEnd: Moment(sqlConditions.FBizDateEnd).add(-1, 'year').format('YYYY-MM-DD')
+  }
+});
 
 let queryInventory = sequelize.query(sqlCommand.Inventory, {
   type: sequelize.QueryTypes.SELECT,
@@ -210,11 +210,51 @@ function statDetails(arrData, filter, group) {
 }
 
 function sumByColumnName(arrData, cn) {
-  var sum = arrData.reduce((acc, val) => {
+  let sum = arrData.reduce((acc, val) => {
     acc += val[cn];
     return acc;
   }, 0);
   return sum;
+}
+
+function groupAndSumByColumn(arrData, group, colName) {
+  // 要保证arrData里的数据没有null！
+  arrData = arrData.group(group);
+  arrData = arrData.reduce((acc, val) => {
+    acc.push({
+      name: val.key,
+      sum: sumByColumnName(val.data, colName)
+    })
+    return acc;
+  }, [])
+}
+
+/////////////////////////////////////////////////////////
+// paras:  arrData = sql metadata models
+//         options = {fitter, group, colName}
+// return: array[{name: xx, sum:yy}, {name: xx, sum:yy}]
+function filterAndGroupAndSumByColumn(arrData, options) {
+  // 检查arrData不能为空，为空educe报错。
+  if(arrData) {
+    // 先过滤
+    if(options.filter) {
+      arrData = arrData.filter(options.filter);
+    }
+    // 再分组
+    if(options.group) {
+      arrData = arrData.group(options.group);
+    }
+    // 最后聚合
+    arrData = arrData.reduce((acc, val) => {
+    acc.push({
+      name: val.key,
+      sum: sumByColumnName(val.data, options.colName) //待判断！！
+    })
+    return acc;
+  }, [])
+}
+return arrData;
+  return [];
 }
 
 ////CorrStorageOrgUnit
@@ -224,7 +264,8 @@ function statInventory(arrData, options) {
     sumUreaQty: 0,
     summaryFert: [],
     summartUrea: [],
-    detailUrea: []
+    detailUrea: [],
+    detailFert: []
   }
   ///////为了把直营店数据联合进分公司
   arrData.map((item) => {
@@ -238,22 +279,29 @@ function statInventory(arrData, options) {
       item.CorrStorageOrgUnit = item.FParentStorageOrgUnit;
     }
   });
+  ////////再细分组织，仅有分公司和进出口部
+  arrData.map((item) => {
+    if(item.FStorageOrgUnit == '进出口部') {
+      item.CorrStorageOrgUnitPlus = '进出口部';
+    }
+    else{
+      item.CorrStorageOrgUnitPlus = '分公司';
+    }
+  })
 
-  // arrDataOri代表未分组时库存物料信息
+  // arrDataOri代表未分组时库存物料信息(已经细分过两次) 
   let arrDataOri = arrData.slice(); //复制数组
+
   ///////////////////统计化肥总概括
-  if(options.filter) {
-    arrData = arrData.filter(options.filter);
-  }
-  if(options.group) {
-    arrData = arrData.group(options.group);
-  }
+  arrData = arrData.group((item) => {return item.CorrStorageOrgUnit;});
+
   arrData.map((item) => {
     item.sumQty = sumByColumnName(item.data, 'FInventoryEndQty');
   });
   statRes.summaryFert = arrData.slice(); //复制数组
   statRes.sumFertQty = sumByColumnName(arrData, 'sumQty');
-  ///////////////////
+
+  ///////////////////化肥
   arrData = [];
   arrData = arrDataOri.slice();
   arrData = arrData
@@ -264,7 +312,8 @@ function statInventory(arrData, options) {
   });
   statRes.summartUrea = arrData.slice(); //复制数组
   statRes.sumUreaQty = sumByColumnName(arrData, 'sumQty');
-  ///////////////////
+
+  ///////////////////尿素+明细
   arrData = [];
   arrData = arrDataOri.slice();
   arrData
@@ -280,7 +329,29 @@ function statInventory(arrData, options) {
       statRes.detailUrea.push(o);
     })
   
-  //////////////////
+  //////////////////统计除了尿素以外的品牌化肥，其中分为进出口和分公司两档。
+  // 分两种情况，一种进出口部没库存，第二种进出口部和分公司各有库存！
+  // return: [{key:xxx, data:[{name:'分公司', sum:xx}, {name:'进出口部', sum:xx}]}, {key:yyy, data:[{name:'分公司', sum:yy}]} ]
+  arrData = [];
+  arrData = arrDataOri.slice();
+  arrData = arrData
+    .filter((item) => { return item.FBrandFertilizer != '尿素'; })
+    .group((item) => { return item.FBrandFertilizer; }) // 这里已经按品牌化肥分好类，格式为[{key: FBrandFertilizer, data:[....]},{key: FBrandFertilizer, data:[....]}]
+    .reduce((acc, val) => {
+      let arr = filterAndGroupAndSumByColumn(val.data, { //这里有问题！
+                group: function(item) {
+                  return item.CorrStorageOrgUnitPlus;
+                },
+                colName: 'FInventoryEndQty'
+              });
+      acc.push({
+        key: val.key,
+        data: arr
+      });
+      return acc;
+    }, []);
+  statRes.detailFert = arrData
+
   return statRes;
 }
 
@@ -348,26 +419,30 @@ function printPurSummary(statRes, startDate) {
 }
 
 function printInvtSummary(statRes, endDate) {
-  let fert = '化肥总库存'+ statRes.sumFertQty.toFixed(0) +'吨（其中'
-    + statRes.summaryFert.reduce((acc, val) => {acc.push(val.key + val.sumQty.toFixed(0) + "吨"); return acc;}, []).join(',')
+  let fert = '化肥总库存'+ statRes.sumFertQty.toFixed(1) +'吨（其中'
+    + statRes.summaryFert.reduce((acc, val) => {acc.push(val.key + val.sumQty.toFixed(1) + "吨"); return acc;}, []).join(',')
     + ')， '
-    + '尿素'+ statRes.sumUreaQty.toFixed(0) +'吨（其中'
-    + statRes.summartUrea.reduce((acc, val) => {acc.push(val.key + val.sumQty.toFixed(0) + "吨"); return acc;}, []).join(',')
+    + '尿素'+ statRes.sumUreaQty.toFixed(1) +'吨（其中'
+    + statRes.summartUrea.reduce((acc, val) => {acc.push(val.key + val.sumQty.toFixed(1) + "吨"); return acc;}, []).join(',')
     + ')， '
     + '其中'
-    + statRes.detailUrea.reduce((acc, val) => {acc.push(val.key + val.sumQty.toFixed(0) + "吨"); return acc;}, []).join(',')
-    + ')';
+    + statRes.detailUrea.reduce((acc, val) => {acc.push(val.key + val.sumQty.toFixed(1) + "吨"); return acc;}, []).join(',')
+    + ')， '
+    + statRes.detailFert.reduce((acc, val) => {
+      if(val.data.length == 1) acc.push(val.key + val.data[0].sum.toFixed(1) + '吨');
+      else {
+        let tmp = val.key + sumByColumnName(val.data, 'sum').toFixed(1) + '吨';
+        tmp += '(' + val.data.reduce((a, v) => {a.push(v.name + v.sum.toFixed(1));return a;}, []).join(',') + ')';
+        acc.push(tmp);
+      }
+      return acc;
+    },[]).join(',');
     return fert;
 }
 
 
 Promise.join(queryInventory,(invt) => {
-  let res = statInventory(invt, {
-    group: function (item) {
-      return item.CorrStorageOrgUnit;
-    }
-  });
-
+  let res = statInventory(invt);
   console.log(printInvtSummary(res));
 
 });
