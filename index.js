@@ -1,17 +1,24 @@
-var Sequelize = require('Sequelize');
+//var Sequelize = require('Sequelize');
 var Moment = require('moment');
 var Promise = require("bluebird");
+const Sequelize = require('./config/sequelize');
+const loadModels = require('./config/loadModels')
 
-var sequelize = new Sequelize("mssql://szy0syz0yngf2017:xQnWdw3u4BOgwTuU@192.168.97.199:1433/YNNZ2011001",{dialectOptions: {
-    requestTimeout: 60*1000
-  }});
-var SaleIssueEntry = sequelize.import('./models/SaleIssueEntry');
-var PurInEntry = sequelize.import('./models/PurInEntry');
-let InventoryEntry = sequelize.import('./models/InventoryEntry');
+// var sequelize = new Sequelize("mssql://szy0syz0yngf2017:xQnWdw3u4BOgwTuU@192.168.97.199:1433/YNNZ2011001",{dialectOptions: {
+//     requestTimeout: 60*1000
+//   }});
+// var SaleIssueEntry = sequelize.import('./models/SaleIssueEntry');
+// var PurInEntry = sequelize.import('./models/PurInEntry');
+// let InventoryEntry = sequelize.import('./models/InventoryEntry');
+
+let sequelize = Sequelize();
+
+let SaleIssueEntry = loadModels(sequelize, 'SaleIssueEntry');
+let PurInEntry = loadModels(sequelize, 'PurInEntry');
+let InventoryEntry = loadModels(sequelize, 'InventoryEntry');
 
 var sqlCommand = require('./db/sqlCommand');
 var sqlConditions = require('./db/sqlConditions');
-
 
 //{ type: sequelize.QueryTypes.SELECT} 只返回Sequelize查询到结果，不返回数据库的元数据。
 var query = sequelize.query(sqlCommand.saleOut, {
