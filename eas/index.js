@@ -457,15 +457,6 @@ function printInvtSummary(statRes, endDate) {
     return fert;
 }
 
-
-// Promise.join(queryInventory,(invt) => {
-//   let res = statInventory(invt);
-//   console.log(printInvtSummary(res));
-
-// });
-
-
-
 Promise.join(query, queryCurtAcc, queryLastAcc, queryPurIn, queryPurInCurtAcc, queryPurInLastAcc, queryInventory, function (curtData, curtAccData, lastAccData, curtPurData, curtPurAccData, lastPurAccData, invtData) {
   var statSaleRes = {
     sumCurtQty: sumByColumnName(curtData, 'FBaseQty'),
