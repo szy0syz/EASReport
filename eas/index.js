@@ -422,7 +422,7 @@ function printSaleSummary(statRes, startDate) {
 
 function printPurSummary(statRes, startDate) {
   let sumFert = statRes
-    .statFertRes.filter((item) => { return item.name != '尿素' && item.sumQty != 0 })
+    .statFertRes.filter((item) => { return item.sumQty != 0 }) //item.name != '尿素' && 
     .reduce((acc, val) => {
       acc.push(val.name + val.sumQty.toFixed(2) + '吨' + "(" + printDetailsSummary(val.details) + ")");
       return acc;
