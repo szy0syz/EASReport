@@ -20,7 +20,10 @@ var PurInEntry = loadModels(sequelize, 'PurInEntry');
 var InventoryEntry = loadModels(sequelize, 'InventoryEntry');
 
 var sqlCommand = require('./db/sqlCommand');
-var sqlConditions = require('./db/sqlConditions');
+var sqlConditions = {
+  FBizDateStart: '20170204',
+  FBizDateEnd:   '20170204'
+}
 
 //{ type: sequelize.QueryTypes.SELECT} 只返回Sequelize查询到结果，不返回数据库的元数据。
 var query = sequelize.query(sqlCommand.saleOut, {
@@ -466,7 +469,11 @@ function printInvtSummary(statRes, endDate) {
   return fert;
 }
 
-Promise.join(query, queryCurtAcc, queryLastAcc, queryPurIn, queryPurInCurtAcc, queryPurInLastAcc, queryInventory, function (curtData, curtAccData, lastAccData, curtPurData, curtPurAccData, lastPurAccData, invtData) {
+module.exports = function(startDate, endDate) {
+  sqlConditions.FBizDateStart = startDate;
+  sqlConditions.FBizDateEnd = endDate;
+
+  Promise.join(query, queryCurtAcc, queryLastAcc, queryPurIn, queryPurInCurtAcc, queryPurInLastAcc, queryInventory, function (curtData, curtAccData, lastAccData, curtPurData, curtPurAccData, lastPurAccData, invtData) {
   var statSaleRes = {
     sumCurtQty: sumByColumnName(curtData, 'FBaseQty'),
     sumCurtAmount: sumByColumnName(curtData, 'FAmount'),
@@ -496,10 +503,12 @@ Promise.join(query, queryCurtAcc, queryLastAcc, queryPurIn, queryPurInCurtAcc, q
     })
   };
 
-  var saleRes = printSaleSummary(statSaleRes, sqlConditions.FBizDateStart);
-  var purRes = printPurSummary(statPurRes, sqlConditions.FBizDateStart);
-  var invtRes = printInvtSummary(statInventory(invtData));
-  console.log(saleRes);
-  console.log(purRes);
-  console.log(invtRes);
-});
+  var saleRes = printSaleSummary(statSaleRes, sqlConditions.FBizDateStart + '\n');
+  var purRes = printPurSummary(statPurRes, sqlConditions.FBizDateStart  + '\n');
+  var invtRes = printInvtSummary(statInventory(invtData)  + '\n');
+
+  return saleRes + purRes + invtRes;
+  });
+
+}
+

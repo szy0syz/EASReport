@@ -3,6 +3,7 @@ var Moment = require('moment');
 var Promise = require("bluebird");
 const Sequelize = require('./config/sequelize');
 const loadModels = require('./config/loadModels')
+const fs = require('fs')
 
 // var sequelize = new Sequelize("mssql://szy0syz0yngf2017:xQnWdw3u4BOgwTuU@192.168.97.199:1433/YNNZ2011001",{dialectOptions: {
 //     requestTimeout: 60*1000
@@ -18,62 +19,12 @@ let PurInEntry = loadModels(sequelize, 'PurInEntry');
 let InventoryEntry = loadModels(sequelize, 'InventoryEntry');
 
 var sqlCommand = require('./db/sqlCommand');
-var sqlConditions = require('./db/sqlConditions');
+var sqlConditions = {
+  FBizDateStart: '20170204',
+  FBizDateEnd:   '20170204'
+}
 
-//{ type: sequelize.QueryTypes.SELECT} 只返回Sequelize查询到结果，不返回数据库的元数据。
-var query = sequelize.query(sqlCommand.saleOut, {
-  type: sequelize.QueryTypes.SELECT,
-  model: SaleIssueEntry,
-  replacements: sqlConditions
-});
 
-var queryCurtAcc = sequelize.query(sqlCommand.saleOut, {
-  type: sequelize.QueryTypes.SELECT,
-  model: SaleIssueEntry,
-  replacements: {
-    FBizDateStart: Moment(sqlConditions.FBizDateStart).month(0).date(1).format('YYYY-MM-DD'), //set month=1
-    FBizDateEnd: sqlConditions.FBizDateEnd
-  }
-});
-
-var queryLastAcc = sequelize.query(sqlCommand.saleOut, {
-  type: sequelize.QueryTypes.SELECT,
-  model: SaleIssueEntry,
-  replacements: {
-    FBizDateStart: Moment(sqlConditions.FBizDateStart).add(-1, 'year').month(0).date(1).format('YYYY-MM-DD'), //set year-1, month=1
-    FBizDateEnd: Moment(sqlConditions.FBizDateEnd).add(-1, 'year').format('YYYY-MM-DD')
-  }
-});
-
-var queryPurIn = sequelize.query(sqlCommand.PruIn, {
-  type: sequelize.QueryTypes.SELECT,
-  model: PurInEntry,
-  replacements: sqlConditions
-});
-
-var queryPurInCurtAcc = sequelize.query(sqlCommand.PruIn, {
-  type: sequelize.QueryTypes.SELECT,
-  model: PurInEntry,
-  replacements: {
-    FBizDateStart: Moment(sqlConditions.FBizDateStart).month(0).date(1).format('YYYY-MM-DD'), //set month=1
-    FBizDateEnd: sqlConditions.FBizDateEnd
-  }
-});
-
-var queryPurInLastAcc = sequelize.query(sqlCommand.PruIn, {
-  type: sequelize.QueryTypes.SELECT,
-  model: PurInEntry,
-  replacements: {
-    FBizDateStart: Moment(sqlConditions.FBizDateStart).add(-1, 'year').month(0).date(1).format('YYYY-MM-DD'), //set year-1, month=1
-    FBizDateEnd: Moment(sqlConditions.FBizDateEnd).add(-1, 'year').format('YYYY-MM-DD')
-  }
-});
-
-let queryInventory = sequelize.query(sqlCommand.Inventory, {
-  type: sequelize.QueryTypes.SELECT,
-  model: InventoryEntry,
-  replacements: sqlConditions
-});
 
 /////////////
 Object.defineProperty(Array.prototype, 'group2', {
@@ -464,7 +415,66 @@ function printInvtSummary(statRes, endDate) {
     return fert;
 }
 
-Promise.join(query, queryCurtAcc, queryLastAcc, queryPurIn, queryPurInCurtAcc, queryPurInLastAcc, queryInventory, function (curtData, curtAccData, lastAccData, curtPurData, curtPurAccData, lastPurAccData, invtData) {
+module.exports = function(startDate, endDate) {
+  sqlConditions.FBizDateStart = startDate;
+  sqlConditions.FBizDateEnd = endDate;
+
+  //{ type: sequelize.QueryTypes.SELECT} 只返回Sequelize查询到结果，不返回数据库的元数据。
+  var query = sequelize.query(sqlCommand.saleOut, {
+    type: sequelize.QueryTypes.SELECT,
+    model: SaleIssueEntry,
+    replacements: sqlConditions
+  });
+
+  var queryCurtAcc = sequelize.query(sqlCommand.saleOut, {
+    type: sequelize.QueryTypes.SELECT,
+    model: SaleIssueEntry,
+    replacements: {
+      FBizDateStart: Moment(sqlConditions.FBizDateStart).month(0).date(1).format('YYYY-MM-DD'), //set month=1
+      FBizDateEnd: sqlConditions.FBizDateEnd
+    }
+  });
+
+  var queryLastAcc = sequelize.query(sqlCommand.saleOut, {
+    type: sequelize.QueryTypes.SELECT,
+    model: SaleIssueEntry,
+    replacements: {
+      FBizDateStart: Moment(sqlConditions.FBizDateStart).add(-1, 'year').month(0).date(1).format('YYYY-MM-DD'), //set year-1, month=1
+      FBizDateEnd: Moment(sqlConditions.FBizDateEnd).add(-1, 'year').format('YYYY-MM-DD')
+    }
+  });
+
+  var queryPurIn = sequelize.query(sqlCommand.PruIn, {
+    type: sequelize.QueryTypes.SELECT,
+    model: PurInEntry,
+    replacements: sqlConditions
+  });
+
+  var queryPurInCurtAcc = sequelize.query(sqlCommand.PruIn, {
+    type: sequelize.QueryTypes.SELECT,
+    model: PurInEntry,
+    replacements: {
+      FBizDateStart: Moment(sqlConditions.FBizDateStart).month(0).date(1).format('YYYY-MM-DD'), //set month=1
+      FBizDateEnd: sqlConditions.FBizDateEnd
+    }
+  });
+
+  var queryPurInLastAcc = sequelize.query(sqlCommand.PruIn, {
+    type: sequelize.QueryTypes.SELECT,
+    model: PurInEntry,
+    replacements: {
+      FBizDateStart: Moment(sqlConditions.FBizDateStart).add(-1, 'year').month(0).date(1).format('YYYY-MM-DD'), //set year-1, month=1
+      FBizDateEnd: Moment(sqlConditions.FBizDateEnd).add(-1, 'year').format('YYYY-MM-DD')
+    }
+  });
+
+  let queryInventory = sequelize.query(sqlCommand.Inventory, {
+    type: sequelize.QueryTypes.SELECT,
+    model: InventoryEntry,
+    replacements: sqlConditions
+  });
+
+  Promise.join(query, queryCurtAcc, queryLastAcc, queryPurIn, queryPurInCurtAcc, queryPurInLastAcc, queryInventory, function (curtData, curtAccData, lastAccData, curtPurData, curtPurAccData, lastPurAccData, invtData) {
   var statSaleRes = {
     sumCurtQty: sumByColumnName(curtData, 'FBaseQty'),
     sumCurtAmount: sumByColumnName(curtData, 'FAmount'),
@@ -489,7 +499,10 @@ Promise.join(query, queryCurtAcc, queryLastAcc, queryPurIn, queryPurInCurtAcc, q
   var saleRes = printSaleSummary(statSaleRes, sqlConditions.FBizDateStart);
   var purRes = printPurSummary(statPurRes, sqlConditions.FBizDateStart);
   let invtRes = printInvtSummary(statInventory(invtData));
+
+  fs.writeFile('./message.txt', saleRes + purRes + invtRes, 'utf8', function() { console.log('写入完成。')});
   console.log(saleRes);
-  console.log(purRes);
-  console.log(invtRes);
-});
+  });
+}
+
+

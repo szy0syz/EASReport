@@ -90,7 +90,7 @@ var sqlCommand_PurIn = "SELECT " +
       "pe.FTaxPrice AS FTaxPrice, pe.FTaxAmount AS FTaxAmount, "+
 	"pe.FUnitActualCost AS FUnitActualCost, pe.FActualCost AS FActualCost, pe.FPurOrderNumber AS FPurOrderNumber, pe.FPurOrderID AS FPurOrderID, pe.FTax AS FTax, " +
 	"pb.FDescription AS FDescription, pb.FAuditTime AS FAuditTime, pb.FYear AS FYear, pb.FMonth AS FMonth, pb.FPeriod AS FPeriod," +
-	"pb.FBizDate AS FBizDate, pb.FNumber AS FNumber, pe.FCustomerID AS ccc," +
+	"pb.FBizDate AS FBizDate, pb.FNumber AS FNumber, pb.FBaseStatus AS FBaseStatus, pb.FCreateTime, pb.FAuditTime, " +
 	"s.FName_L2 AS FSupplier," +
 	"mg.FName_l2 AS FMaterial, mg.FNumber AS FMaterialNumber, mg.FModel AS FMaterialModel, mg.FDisplayName_L2 as FMaterialDisplayName," +
       "mg.type0 as FMaterialType0, mg.type1 as FMaterialType1, mg.type2 as FMaterialType2, mg.type3 as FMaterialType3," +
