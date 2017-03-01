@@ -8,8 +8,8 @@
             "type": "node",
             "request": "launch",
             "name": "启动程序",
-            "program": "${workspaceRoot}/index.js",
-            "cwd": "${workspaceRoot}",
+            "program": "${workspaceRoot}/dist/index.js",
+            "cwd": "${workspaceRoot}/dist",
             "outFiles": []
         },
         {
