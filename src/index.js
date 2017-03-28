@@ -500,7 +500,7 @@ module.exports = function(startDate, endDate) {
   var purRes = printPurSummary(statPurRes, sqlConditions.FBizDateStart);
   let invtRes = printInvtSummary(statInventory(invtData));
 
-  fs.writeFile('./message.txt', saleRes + purRes + invtRes, 'utf8', function() { console.log('写入完成。')});
+  fs.writeFile('./public/'+ startDate +'.txt', saleRes + purRes + invtRes, 'utf8', function() { console.log('写入完成。')});
   console.log(saleRes);
   });
 }

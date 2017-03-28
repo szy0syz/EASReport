@@ -1,6 +1,7 @@
 var express = require('express')
 var dailyReport = require('./index.js')
 var app = express()
+app.use(express.static('public'));
 
 app.get('/report/daily', function (req, res) {
   console.log("_________4444");

@@ -32,3 +32,6 @@ cmstest
 #backend no public
 public
 
+#mac os
+.DS_Store
+.DS_Store?
