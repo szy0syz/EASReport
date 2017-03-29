@@ -497,9 +497,9 @@ module.exports = function(startDate) {
     statDetails: statDetails(curtData,function(v) { return v.FBrandCarbaMind != '非尿素' },function(item) {return item.FMaterialNumber})
   };
 
-  var saleRes = printSaleSummary(statSaleRes, startDate);
-  var purRes = printPurSummary(statPurRes, startDate);
-  let invtRes = printInvtSummary(statInventory(invtData));
+  var saleRes = printSaleSummary(statSaleRes, startDate) + '\n\n';
+  var purRes = printPurSummary(statPurRes, startDate)+'\n\n';
+  let invtRes = printInvtSummary(statInventory(invtData))+'\n\n';
 
   fs.writeFile('./public/'+ startDate +'.txt', saleRes + purRes + invtRes, 'utf8', function() { 
     console.log('写入完成。');

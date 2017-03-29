@@ -1,7 +1,11 @@
 var express = require('express')
+var exphbs  = require('express-handlebars');
 var dailyReport = require('./index.js')
 var app = express()
 app.use(express.static('public'));
+
+app.engine('handlebars', exphbs({defaultLayout: 'main'}));
+app.set('view engine', 'handlebars');
 
 app.get('/report/daily', function (req, res) {
     app.locals.isWorking = true;
