@@ -4,10 +4,10 @@ var app = express()
 app.use(express.static('public'));
 
 app.get('/report/daily', function (req, res) {
-  console.log("_________4444");
+  //console.log("_________4444");
   dailyReport(req.query.s); //只要一个日期参数
-  res.send(req.query.s);
-  console.log("_________55555");
+  res.send(req.query.s + '的日报表正在制作,请2分钟后访问http://localhost:6006/2017xxxx.txt读取报表结果.');
+  //console.log("_________55555");
 })
 
 //倒数第二处理500
@@ -22,6 +22,6 @@ app.use(function(req, res) {
   res.send('404 - 未找到');
 })
 
-app.listen(3000, function () {
-  console.log('Example app listening on port 3000!')
+app.listen(6006, function () {
+  console.log('Example app listening on port 6006!')
 })

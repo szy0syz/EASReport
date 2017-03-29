@@ -292,7 +292,7 @@ function Command (targetDate) {
       @FBizDateEnding = :FBizDateEnd `;
 
   //当目标日期为26~31日之间，使用制单日期查询数据。    
-  if (day => 25 || day <=31 ) {
+  if (day >= 26 && day <=31 ) {
     this.saleOut += " AND sb.FCreateTime between :FBizDateStart and :FBizDateEnd";
     this.purIn += " AND pb.FCreateTime between :FBizDateStart and :FBizDateEnd";
   } else {
