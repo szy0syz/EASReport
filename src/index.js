@@ -468,7 +468,7 @@ module.exports = function(startDate) {
   let queryInventory = sequelize.query(sqlCommand.Invt, {
     type: sequelize.QueryTypes.SELECT,
     model: InventoryEntry,
-    replacements: { FBizDateEnd: bizDateEnd.format('YYYY-MM-DD') }
+    replacements: { FBizDateEnd:  isEndMonth ? bizDateEnd.add(1, 'M').date(1).format('YYYY-MM-DD') :bizDateEnd.format('YYYY-MM-DD') }
   });
 
   Promise.join(query, queryCurtAcc, queryLastAcc, queryPurIn, queryPurInCurtAcc, queryPurInLastAcc, queryInventory, function (curtData, curtAccData, lastAccData, curtPurData, curtPurAccData, lastPurAccData, invtData) {

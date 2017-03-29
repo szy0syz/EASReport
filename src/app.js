@@ -22,6 +22,6 @@ app.use(function(req, res) {
   res.send('404 - 未找到');
 })
 
-app.listen(6006, function () {
-  console.log('Example app listening on port 6006!')
+app.listen(6007, function () {
+  console.log('Example app listening on port 6007!')
 })
