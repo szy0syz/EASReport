@@ -19,11 +19,6 @@ let PurInEntry = loadModels(sequelize, 'PurInEntry');
 let InventoryEntry = loadModels(sequelize, 'InventoryEntry');
 
 var Command = require('./db/sqlCommand');
-var sqlConditions = {
-  FBizDateStart: '20170204',
-  FBizDateEnd:   '20170204'
-}
-
 
 
 /////////////
@@ -319,7 +314,7 @@ function statInventory(arrData, options) {
     .reduce((acc, val) => {
       acc.push({
         name: val.key,
-        sum: sumByColumnName(val.data, 'FInventoryEndQty').toFixed(1)
+        sum: sumByColumnName(val.data, 'FInventoryEndQty').toFixed(0)
       })
       return acc;
     }, []);
@@ -328,14 +323,14 @@ function statInventory(arrData, options) {
   return statRes;
 }
 
-
+const decimalDigits = 0;
 ////
 function printDetailsSummary(arrData) {  //数组要用reduce 一定要把空的剔除！
   let sumDetailsReport;
   if(arrData) {
     sumDetailsReport = arrData
                           .reduce((acc, val) => {
-                              acc.push(val.name + '['+ val.model +']' + val.sumQty.toFixed(2) + "吨,单价" + (val.sumAmount / val.sumQty).toFixed(0));                       
+                              acc.push(val.name + '['+ val.model +']' + val.sumQty.toFixed(decimalDigits) + "吨,单价" + (val.sumAmount / val.sumQty).toFixed(0));                       
                             return acc;
                           }, [])
                           .join(','); //以逗号相连
@@ -343,38 +338,25 @@ function printDetailsSummary(arrData) {  //数组要用reduce 一定要把空的
   return sumDetailsReport;
 }
 
-function printSaleSummary1(statRes, startDate) {
-  var sumUrea = statRes.statFertRes.filter((item) => { return item.name == '尿素' })[0].sumQty.toFixed(2) || 0;
-  var sumUreaDetails = statRes.statUreaRes
-    .reduce((acc, val) => {
-      acc.push(val.name + '['+ val.model +']' + val.sumQty.toFixed(2) + "吨,单价" + (val.sumAmount / val.sumQty).toFixed(0));
-      return acc;
-    }, [])
-    .join(',');
-  var sumFert = statRes
-    .statFertRes.filter((item) => { return item.name != '尿素' && item.sumQty != 0 })
-    .reduce((acc, val) => {
-      acc.push(val.name + val.sumQty.toFixed(2) + '吨');
-      return acc;
-    }, [])
-    .join(',');
-  var strSaleSummary = "销售：化肥总售出" + statRes.sumCurtQty.toFixed(2) + "吨，" + (statRes.sumCurtAmount / 10000).toFixed(2) + "万元。其中尿素" +
-    sumUrea + "吨\（" + sumUreaDetails + "），"
-    + sumFert + "。" + startDate.split('-')[0] + "年累计销售" + statRes.sumAccCurtQty.toFixed(2) + "吨，同比增长" + ((statRes.sumAccCurtQty / statRes.sumAccLastQty) * 100).toFixed() + "%；累计销额" + (statRes.sumAccCurtAmount / 10000).toFixed(2) + "万元，同比增长" + ((statRes.sumAccCurtAmount / statRes.sumAccLastAmount) * 100).toFixed() + "%（以销售出库单统计）。";
-  return strSaleSummary;
-}
+
+
 
 ////
 function printSaleSummary(statRes, startDate) {
   var sumFert = statRes
-    .statFertRes.filter((item) => { return item.name != '尿素' && item.sumQty != 0 })
+    //.statFertRes.filter((item) => { return item.name != '尿素' && item.sumQty != 0 })
+    .statFertRes.filter((item) => { return item.sumQty != 0 })
     .reduce((acc, val) => {
-      acc.push(val.name + val.sumQty.toFixed(2) + '吨' + "(" + printDetailsSummary(val.details) + ")");
+      if(val.name == "尿素") {
+        acc.push(val.name + val.sumQty.toFixed(decimalDigits) + '吨' + "(" + printDetailsSummary(val.details) + ")");
+      } else { //这里只为“尿素”分类打印明细
+        acc.push(val.name + val.sumQty.toFixed(decimalDigits) + '吨');
+      }     
       return acc;
     }, [])
     .join(',');
-  var strSaleSummary = "销售：化肥总售出" + statRes.sumCurtQty.toFixed(2) + "吨，" + (statRes.sumCurtAmount / 10000).toFixed(2) + "万元。" +
-      sumFert + "。" + startDate.split('-')[0] + "年累计销售" + statRes.sumAccCurtQty.toFixed(2) + "吨，同比增长" + ((statRes.sumAccCurtQty / statRes.sumAccLastQty) * 100).toFixed() + "%；累计销额" + (statRes.sumAccCurtAmount / 10000).toFixed(2) + "万元，同比增长" + ((statRes.sumAccCurtAmount / statRes.sumAccLastAmount) * 100).toFixed() + "%（以销售出库单统计）。";
+  var strSaleSummary = "销售：化肥总售出" + statRes.sumCurtQty.toFixed(2) + "吨，" + (statRes.sumCurtAmount / 10000).toFixed(decimalDigits) + "万元。" +
+      sumFert + "。" + startDate.split('-')[0] + "年累计销售" + statRes.sumAccCurtQty.toFixed(2) + "吨，同比增长" + ((statRes.sumAccCurtQty / statRes.sumAccLastQty) * 100).toFixed() + "%；累计销额" + (statRes.sumAccCurtAmount / 10000).toFixed(decimalDigits) + "万元，同比增长" + ((statRes.sumAccCurtAmount / statRes.sumAccLastAmount) * 100).toFixed() + "%（以销售出库单统计）。";
   return strSaleSummary;
 }
 
@@ -382,29 +364,33 @@ function printPurSummary(statRes, startDate) {
   let sumFert = statRes
     .statFertRes.filter((item) => { return item.sumQty != 0 }) //item.name != '尿素' && 
     .reduce((acc, val) => {
-      acc.push(val.name + val.sumQty.toFixed(2) + '吨' + "(" + printDetailsSummary(val.details) + ")");
+      if(val.name == "尿素") {
+        acc.push(val.name + val.sumQty.toFixed(decimalDigits) + '吨' + "(" + printDetailsSummary(val.details) + ")");
+      } else { //这里只为“尿素”分类打印明细
+        acc.push(val.name + val.sumQty.toFixed(decimalDigits) + '吨');
+      }
       return acc;
     }, [])
     .join(',');
-  let strSaleSummary = "购进：化肥总购入" + statRes.sumCurtQty.toFixed(2) + "吨，" + (statRes.sumCurtAmount / 10000).toFixed(2) + "万元。" +
-      sumFert + "。" + startDate.split('-')[0] + "年累计购入" + statRes.sumAccCurtQty.toFixed(2) + "吨，同比增长" + ((statRes.sumAccCurtQty / statRes.sumAccLastQty) * 100).toFixed() + "%；累计销额" + (statRes.sumAccCurtAmount / 10000).toFixed(2) + "万元，同比增长" + ((statRes.sumAccCurtAmount / statRes.sumAccLastAmount) * 100).toFixed() + "%（以采购入库单统计）。";
+  let strSaleSummary = "购进：化肥总购入" + statRes.sumCurtQty.toFixed(decimalDigits) + "吨，" + (statRes.sumCurtAmount / 10000).toFixed(decimalDigits) + "万元。" +
+      sumFert + "。" + startDate.split('-')[0] + "年累计购入" + statRes.sumAccCurtQty.toFixed(decimalDigits) + "吨，同比增长" + ((statRes.sumAccCurtQty / statRes.sumAccLastQty) * 100).toFixed() + "%；累计购额" + (statRes.sumAccCurtAmount / 10000).toFixed(decimalDigits) + "万元，同比增长" + ((statRes.sumAccCurtAmount / statRes.sumAccLastAmount) * 100).toFixed() + "%（以采购入库单统计）。";
   return strSaleSummary;
 }
 
 function printInvtSummary(statRes, endDate) {
-  let fert = '化肥总库存'+ statRes.sumFertQty.toFixed(1) +'吨（其中'
-    + statRes.summaryFert.reduce((acc, val) => {acc.push(val.key + val.sumQty.toFixed(1) + "吨"); return acc;}, []).join(',')
+  let fert = '化肥总库存'+ statRes.sumFertQty.toFixed(decimalDigits) +'吨（其中'
+    + statRes.summaryFert.reduce((acc, val) => {acc.push(val.key + val.sumQty.toFixed(decimalDigits) + "吨"); return acc;}, []).join(',')
     + ')， '
-    + '尿素'+ statRes.sumUreaQty.toFixed(1) +'吨（其中'
-    + statRes.summartUrea.reduce((acc, val) => {acc.push(val.key + val.sumQty.toFixed(1) + "吨"); return acc;}, []).join(',')
+    + '尿素'+ statRes.sumUreaQty.toFixed(decimalDigits) +'吨（其中'
+    + statRes.summartUrea.reduce((acc, val) => {acc.push(val.key + val.sumQty.toFixed(decimalDigits) + "吨"); return acc;}, []).join(',')
     + ')， '
     + '其中'
-    + statRes.detailUrea.reduce((acc, val) => {acc.push(val.key + val.sumQty.toFixed(1) + "吨"); return acc;}, []).join(',')
+    + statRes.detailUrea.reduce((acc, val) => {acc.push(val.key + val.sumQty.toFixed(decimalDigits) + "吨"); return acc;}, []).join(',')
     + ')， '
     + statRes.detailFert.reduce((acc, val) => {
-      if(val.data.length == 1) acc.push(val.key + val.data[0].sum.toFixed(1) + '吨');
+      if(val.data.length == 1) acc.push(val.key + val.data[0].sum.toFixed(decimalDigits) + '吨');
       else {
-        acc.push(val.key + sumByColumnName(val.data, 'sum').toFixed(1) + '吨' + '(' + val.data.reduce((a, v) => {a.push(v.name + v.sum.toFixed(1));return a;}, []).join(',') + ')');
+        acc.push(val.key + sumByColumnName(val.data, 'sum').toFixed(decimalDigits) + '吨' + '(' + val.data.reduce((a, v) => {a.push(v.name + v.sum.toFixed(decimalDigits));return a;}, []).join(',') + ')');
       }
       return acc;
     },[]).join(',')
@@ -416,22 +402,30 @@ function printInvtSummary(statRes, endDate) {
 }
 
 module.exports = function(startDate) {
-  sqlConditions.FBizDateStart = startDate;
-  sqlConditions.FBizDateEnd = startDate;
+  let bizDateStart = Moment(startDate);
+  let bizDateEnd = Moment(startDate);
+  let day = bizDateStart.date();
+  let isEndMonth = day >= 26 && day <= 31 ? true : false;
+  if (isEndMonth) {
+    bizDateEnd = bizDateEnd.add(1, 'd');
+  }
   let sqlCommand = new Command(startDate); //实例化Command对象
   //{ type: sequelize.QueryTypes.SELECT} 只返回Sequelize查询到结果，不返回数据库的元数据。
   var query = sequelize.query(sqlCommand.saleOut, {
     type: sequelize.QueryTypes.SELECT,
     model: SaleIssueEntry,
-    replacements: sqlConditions
+    replacements: {
+      FBizDateStart: bizDateStart.format('YYYY-MM-DD'),
+      FBizDateEnd: bizDateEnd.format('YYYY-MM-DD')
+    }
   });
 
   var queryCurtAcc = sequelize.query(sqlCommand.saleOut, {
     type: sequelize.QueryTypes.SELECT,
     model: SaleIssueEntry,
     replacements: {
-      FBizDateStart: Moment(sqlConditions.FBizDateStart).month(0).date(1).format('YYYY-MM-DD'), //set month=1
-      FBizDateEnd: sqlConditions.FBizDateEnd
+      FBizDateStart: bizDateStart.month(0).date(1).format('YYYY-MM-DD'), //set month=1
+      FBizDateEnd: bizDateEnd.format('YYYY-MM-DD')
     }
   });
 
@@ -439,23 +433,26 @@ module.exports = function(startDate) {
     type: sequelize.QueryTypes.SELECT,
     model: SaleIssueEntry,
     replacements: {
-      FBizDateStart: Moment(sqlConditions.FBizDateStart).add(-1, 'year').month(0).date(1).format('YYYY-MM-DD'), //set year-1, month=1
-      FBizDateEnd: Moment(sqlConditions.FBizDateEnd).add(-1, 'year').format('YYYY-MM-DD')
+      FBizDateStart: bizDateStart.add(-1, 'year').month(0).date(1).format('YYYY-MM-DD'), //set year-1, month=1
+      FBizDateEnd: bizDateEnd.add(-1, 'year').format('YYYY-MM-DD')
     }
   });
 
   var queryPurIn = sequelize.query(sqlCommand.purIn, {
     type: sequelize.QueryTypes.SELECT,
     model: PurInEntry,
-    replacements: sqlConditions
+    replacements: {
+      FBizDateStart: bizDateStart.format('YYYY-MM-DD'),
+      FBizDateEnd: bizDateEnd.format('YYYY-MM-DD')
+    }
   });
 
   var queryPurInCurtAcc = sequelize.query(sqlCommand.purIn, {
     type: sequelize.QueryTypes.SELECT,
     model: PurInEntry,
     replacements: {
-      FBizDateStart: Moment(sqlConditions.FBizDateStart).month(0).date(1).format('YYYY-MM-DD'), //set month=1
-      FBizDateEnd: sqlConditions.FBizDateEnd
+      FBizDateStart: bizDateStart.month(0).date(1).format('YYYY-MM-DD'), //set month=1
+      FBizDateEnd: bizDateEnd.format('YYYY-MM-DD')
     }
   });
 
@@ -463,15 +460,15 @@ module.exports = function(startDate) {
     type: sequelize.QueryTypes.SELECT,
     model: PurInEntry,
     replacements: {
-      FBizDateStart: Moment(sqlConditions.FBizDateStart).add(-1, 'year').month(0).date(1).format('YYYY-MM-DD'), //set year-1, month=1
-      FBizDateEnd: Moment(sqlConditions.FBizDateEnd).add(-1, 'year').format('YYYY-MM-DD')
+      FBizDateStart: bizDateStart.add(-1, 'year').month(0).date(1).format('YYYY-MM-DD'), //set year-1, month=1
+      FBizDateEnd: bizDateEnd.add(-1, 'year').format('YYYY-MM-DD')
     }
   });
 
   let queryInventory = sequelize.query(sqlCommand.Invt, {
     type: sequelize.QueryTypes.SELECT,
     model: InventoryEntry,
-    replacements: sqlConditions
+    replacements: { FBizDateEnd: bizDateEnd.format('YYYY-MM-DD') }
   });
 
   Promise.join(query, queryCurtAcc, queryLastAcc, queryPurIn, queryPurInCurtAcc, queryPurInLastAcc, queryInventory, function (curtData, curtAccData, lastAccData, curtPurData, curtPurAccData, lastPurAccData, invtData) {
@@ -496,8 +493,8 @@ module.exports = function(startDate) {
     statDetails: statDetails(curtData,function(v) { return v.FBrandCarbaMind != '非尿素' },function(item) {return item.FMaterialNumber})
   };
 
-  var saleRes = printSaleSummary(statSaleRes, sqlConditions.FBizDateStart);
-  var purRes = printPurSummary(statPurRes, sqlConditions.FBizDateStart);
+  var saleRes = printSaleSummary(statSaleRes, startDate);
+  var purRes = printPurSummary(statPurRes, startDate);
   let invtRes = printInvtSummary(statInventory(invtData));
 
   fs.writeFile('./public/'+ startDate +'.txt', saleRes + purRes + invtRes, 'utf8', function() { console.log('写入完成。')});
