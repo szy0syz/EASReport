@@ -1,3 +1,4 @@
+// 销售出库单
 var sqlCommand_SaleOut = 
 "    SELECT "+
             //   "top 100000 " +
@@ -81,10 +82,12 @@ var sqlCommand_SaleOut =
                    "WHERE mgs.FID = 'rxeYrJ6RSpquKqs0T4Jhs5eb4R8=' "+
              ") AS mgp1 ON mgp1.FMaterialID = se.FMaterialID "+
 "WHERE se.FStorageOrgUnitID IS NOT NULL AND sb.FControlUnitID = 'a06viCxSRPSu0pa/lIWabcznrtQ='  AND mgp.FMaterialGroupStandard != '非化肥' AND sb.FBaseStatus = 4 " + 
-      "AND sb.FBizDate between :FBizDateStart and :FBizDateEnd"
+      "AND sb.FCreateTime between :FBizDateStart and :FBizDateEnd"
+//"AND sb.FBizDate between :FBizDateStart and :FBizDateEnd"
+//"AND sb.FBizDate between :FBizDateStart and :FBizDateEnd"
 
 //----------------------------------------------------------------------------------------------------------------------------------------
-
+// 采购入库单！
 var sqlCommand_PurIn = "SELECT " +
 	"pe.FID AS FID, pe.FQty AS FQty, pe.FBaseQty AS FBaseQty, pe.FBaseQty AS FBaseQty, pe.FPrice AS FPrice, pe.FAmount AS FAmount," +
       "pe.FTaxPrice AS FTaxPrice, pe.FTaxAmount AS FTaxAmount, "+
@@ -127,7 +130,8 @@ var sqlCommand_PurIn = "SELECT " +
                    "WHERE mgs.FID = 'rxeYrJ6RSpquKqs0T4Jhs5eb4R8='"  +
              ") AS mgp1 ON mgp1.FMaterialID = pe.FMaterialID " +
 "WHERE pe.FStorageOrgUnitID IS NOT NULL AND pb.FControlUnitID = 'a06viCxSRPSu0pa/lIWabcznrtQ='  AND mgp.FMaterialGroupStandard != '非化肥' AND pb.FBaseStatus = 4 " + 
-      "AND pb.FBizDate between :FBizDateStart and :FBizDateEnd"
+      "AND pb.FCreateTime between :FBizDateStart and :FBizDateEnd"
+//"AND pb.FBizDate between :FBizDateStart and :FBizDateEnd"
 
 //------------------------------------
 var sqlCommand_Inventory = "DECLARE	@return_value int " +
