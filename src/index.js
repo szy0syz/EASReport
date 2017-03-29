@@ -18,7 +18,7 @@ let SaleIssueEntry = loadModels(sequelize, 'SaleIssueEntry');
 let PurInEntry = loadModels(sequelize, 'PurInEntry');
 let InventoryEntry = loadModels(sequelize, 'InventoryEntry');
 
-var sqlCommand = require('./db/sqlCommand');
+var Command = require('./db/sqlCommand');
 var sqlConditions = {
   FBizDateStart: '20170204',
   FBizDateEnd:   '20170204'
@@ -415,10 +415,10 @@ function printInvtSummary(statRes, endDate) {
     return fert;
 }
 
-module.exports = function(startDate, endDate) {
+module.exports = function(startDate) {
   sqlConditions.FBizDateStart = startDate;
-  sqlConditions.FBizDateEnd = endDate;
-
+  sqlConditions.FBizDateEnd = startDate;
+  let sqlCommand = new Command(startDate); //实例化Command对象
   //{ type: sequelize.QueryTypes.SELECT} 只返回Sequelize查询到结果，不返回数据库的元数据。
   var query = sequelize.query(sqlCommand.saleOut, {
     type: sequelize.QueryTypes.SELECT,
@@ -444,13 +444,13 @@ module.exports = function(startDate, endDate) {
     }
   });
 
-  var queryPurIn = sequelize.query(sqlCommand.PruIn, {
+  var queryPurIn = sequelize.query(sqlCommand.purIn, {
     type: sequelize.QueryTypes.SELECT,
     model: PurInEntry,
     replacements: sqlConditions
   });
 
-  var queryPurInCurtAcc = sequelize.query(sqlCommand.PruIn, {
+  var queryPurInCurtAcc = sequelize.query(sqlCommand.purIn, {
     type: sequelize.QueryTypes.SELECT,
     model: PurInEntry,
     replacements: {
@@ -459,7 +459,7 @@ module.exports = function(startDate, endDate) {
     }
   });
 
-  var queryPurInLastAcc = sequelize.query(sqlCommand.PruIn, {
+  var queryPurInLastAcc = sequelize.query(sqlCommand.purIn, {
     type: sequelize.QueryTypes.SELECT,
     model: PurInEntry,
     replacements: {
@@ -468,7 +468,7 @@ module.exports = function(startDate, endDate) {
     }
   });
 
-  let queryInventory = sequelize.query(sqlCommand.Inventory, {
+  let queryInventory = sequelize.query(sqlCommand.Invt, {
     type: sequelize.QueryTypes.SELECT,
     model: InventoryEntry,
     replacements: sqlConditions
@@ -501,7 +501,7 @@ module.exports = function(startDate, endDate) {
   let invtRes = printInvtSummary(statInventory(invtData));
 
   fs.writeFile('./public/'+ startDate +'.txt', saleRes + purRes + invtRes, 'utf8', function() { console.log('写入完成。')});
-  console.log(saleRes);
+  //console.log(saleRes);
   });
 }
 

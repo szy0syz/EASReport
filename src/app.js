@@ -5,8 +5,8 @@ app.use(express.static('public'));
 
 app.get('/report/daily', function (req, res) {
   console.log("_________4444");
-  dailyReport(req.query.s, req.query.e);
-  res.send(req.query.s+ '___' +req.query.e);
+  dailyReport(req.query.s); //只要一个日期参数
+  res.send(req.query.s);
   console.log("_________55555");
 })
 
