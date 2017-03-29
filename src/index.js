@@ -131,7 +131,8 @@ function statFert(arrData) {
 // 这个算法还是有点耦合了,后期改。
 /////////////////
 function statDetails(arrData, filter, group) {
-  let res = accObj = [];
+  let res = [],
+      accObj = [];
   arrData
     .filter(filter)
     .group(group)
