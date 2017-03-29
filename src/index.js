@@ -404,28 +404,32 @@ function printInvtSummary(statRes, endDate) {
 module.exports = function(startDate) {
   let bizDateStart = Moment(startDate);
   let bizDateEnd = Moment(startDate);
-  let day = bizDateStart.date();
+  let day = Moment(startDate).date();
   let isEndMonth = day >= 26 && day <= 31 ? true : false;
   if (isEndMonth) {
     bizDateEnd = bizDateEnd.add(1, 'd');
   }
+
+  let strDateStart = bizDateStart.format('YYYY-MM-DD');
+  let strDateEnd = bizDateEnd.format('YYYY-MM-DD');
+
   let sqlCommand = new Command(startDate); //实例化Command对象
   //{ type: sequelize.QueryTypes.SELECT} 只返回Sequelize查询到结果，不返回数据库的元数据。
   var query = sequelize.query(sqlCommand.saleOut, {
     type: sequelize.QueryTypes.SELECT,
     model: SaleIssueEntry,
     replacements: {
-      FBizDateStart: bizDateStart.format('YYYY-MM-DD'),
-      FBizDateEnd: bizDateEnd.format('YYYY-MM-DD')
+      FBizDateStart: strDateStart,
+      FBizDateEnd: strDateEnd
     }
   });
 
   var queryCurtAcc = sequelize.query(sqlCommand.saleOut, {
     type: sequelize.QueryTypes.SELECT,
     model: SaleIssueEntry,
-    replacements: {
-      FBizDateStart: bizDateStart.month(0).date(1).format('YYYY-MM-DD'), //set month=1
-      FBizDateEnd: bizDateEnd.format('YYYY-MM-DD')
+    replacements: { //每次必须重新实例化Moment对象,要不然对其的操作是影响原来的值!!!!
+      FBizDateStart: Moment(strDateStart).month(0).date(1).format('YYYY-MM-DD'), //set month=1
+      FBizDateEnd: Moment(strDateEnd).format('YYYY-MM-DD')
     }
   });
 
@@ -433,8 +437,8 @@ module.exports = function(startDate) {
     type: sequelize.QueryTypes.SELECT,
     model: SaleIssueEntry,
     replacements: {
-      FBizDateStart: bizDateStart.add(-1, 'year').month(0).date(1).format('YYYY-MM-DD'), //set year-1, month=1
-      FBizDateEnd: bizDateEnd.add(-1, 'year').format('YYYY-MM-DD')
+      FBizDateStart: Moment(strDateStart).add(-1, 'year').month(0).date(1).format('YYYY-MM-DD'), //set year-1, month=1
+      FBizDateEnd: Moment(strDateEnd).add(-1, 'year').format('YYYY-MM-DD')
     }
   });
 
@@ -442,8 +446,8 @@ module.exports = function(startDate) {
     type: sequelize.QueryTypes.SELECT,
     model: PurInEntry,
     replacements: {
-      FBizDateStart: bizDateStart.format('YYYY-MM-DD'),
-      FBizDateEnd: bizDateEnd.format('YYYY-MM-DD')
+      FBizDateStart: strDateStart,
+      FBizDateEnd: strDateEnd
     }
   });
 
@@ -451,8 +455,8 @@ module.exports = function(startDate) {
     type: sequelize.QueryTypes.SELECT,
     model: PurInEntry,
     replacements: {
-      FBizDateStart: bizDateStart.month(0).date(1).format('YYYY-MM-DD'), //set month=1
-      FBizDateEnd: bizDateEnd.format('YYYY-MM-DD')
+      FBizDateStart: Moment(strDateStart).month(0).date(1).format('YYYY-MM-DD'), //set month=1
+      FBizDateEnd: strDateEnd
     }
   });
 
@@ -460,15 +464,15 @@ module.exports = function(startDate) {
     type: sequelize.QueryTypes.SELECT,
     model: PurInEntry,
     replacements: {
-      FBizDateStart: bizDateStart.add(-1, 'year').month(0).date(1).format('YYYY-MM-DD'), //set year-1, month=1
-      FBizDateEnd: bizDateEnd.add(-1, 'year').format('YYYY-MM-DD')
+      FBizDateStart: Moment(strDateStart).add(-1, 'year').month(0).date(1).format('YYYY-MM-DD'), //set year-1, month=1
+      FBizDateEnd: Moment(strDateEnd).add(-1, 'year').format('YYYY-MM-DD')
     }
   });
 
   let queryInventory = sequelize.query(sqlCommand.Invt, {
     type: sequelize.QueryTypes.SELECT,
     model: InventoryEntry,
-    replacements: { FBizDateEnd:  isEndMonth ? bizDateEnd.add(1, 'M').date(1).format('YYYY-MM-DD') :bizDateEnd.format('YYYY-MM-DD') }
+    replacements: { FBizDateEnd:  isEndMonth ? Moment(strDateEnd).add(1, 'M').date(1).format('YYYY-MM-DD') : strDateEnd }
   });
 
   Promise.join(query, queryCurtAcc, queryLastAcc, queryPurIn, queryPurInCurtAcc, queryPurInLastAcc, queryInventory, function (curtData, curtAccData, lastAccData, curtPurData, curtPurAccData, lastPurAccData, invtData) {
@@ -497,7 +501,9 @@ module.exports = function(startDate) {
   var purRes = printPurSummary(statPurRes, startDate);
   let invtRes = printInvtSummary(statInventory(invtData));
 
-  fs.writeFile('./public/'+ startDate +'.txt', saleRes + purRes + invtRes, 'utf8', function() { console.log('写入完成。')});
+  fs.writeFile('./public/'+ startDate +'.txt', saleRes + purRes + invtRes, 'utf8', function() { 
+    console.log('写入完成。');
+  });
   //console.log(saleRes);
   });
 }
