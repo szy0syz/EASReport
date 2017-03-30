@@ -9,7 +9,7 @@ app.engine('handlebars', exphbs({defaultLayout: 'main'}));
 app.set('view engine', 'handlebars');
 
 app.get('/daily/:targetDate', function (req, res) {
-    //dailyReport(req.params.targetDate); //只要一个日期参数
+    dailyReport(req.params.targetDate); //只要一个日期参数
     res.send(req.query.s + '的日报表正在制作,请2分钟后访问报表结果.');
 })
 
@@ -22,8 +22,13 @@ app.get('/daily/:targetDate', function (req, res) {
 //   }
 // })
 
+//处理404
 app.use(function(req, res, next) {
-  res.status(404).send('Sorry cant find that!');
+  try {
+    res.status(404).send('404 - 未找到');
+  } catch(e) {
+    console.error('404 set header agter sent');
+  }
 });
 
 //处理500
@@ -33,5 +38,5 @@ app.use(function(err, req, res, next) {
 })
 
 app.listen(6008, function () {
-  console.log('Example app listening on port 6007!')
+  console.log('Example app listening on port 6008!')
 })
