@@ -10,7 +10,7 @@ app.set('view engine', 'handlebars');
 app.get('/report/daily', function (req, res) {
     app.locals.isWorking = true;
     dailyReport(req.query.s); //只要一个日期参数
-    res.send(req.query.s + '的日报表正在制作,请2分钟后访问http://localhost:6006/2017xxxx.txt读取报表结果.');
+    res.send(req.query.s + '的日报表正在制作,请2分钟后访问报表结果.');
 })
 
 //倒数第二处理500

@@ -5,20 +5,13 @@ const Sequelize = require('./config/sequelize');
 const loadModels = require('./config/loadModels')
 const fs = require('fs')
 
-// var sequelize = new Sequelize("mssql://szy0syz0yngf2017:xQnWdw3u4BOgwTuU@192.168.97.199:1433/YNNZ2011001",{dialectOptions: {
-//     requestTimeout: 60*1000
-//   }});
-// var SaleIssueEntry = sequelize.import('./models/SaleIssueEntry');
-// var PurInEntry = sequelize.import('./models/PurInEntry');
-// let InventoryEntry = sequelize.import('./models/InventoryEntry');
+const sequelize = Sequelize();
 
-let sequelize = Sequelize();
+const SaleIssueEntry = loadModels(sequelize, 'SaleIssueEntry');
+const PurInEntry = loadModels(sequelize, 'PurInEntry');
+const InventoryEntry = loadModels(sequelize, 'InventoryEntry');
 
-let SaleIssueEntry = loadModels(sequelize, 'SaleIssueEntry');
-let PurInEntry = loadModels(sequelize, 'PurInEntry');
-let InventoryEntry = loadModels(sequelize, 'InventoryEntry');
-
-var Command = require('./db/sqlCommand');
+let Command = require('./db/sqlCommand');
 
 
 /////////////
@@ -90,41 +83,6 @@ function statFert(arrData) {
   //返回结果
   return brandF;
 }
-
-// 这个算法已经被更新不用了
-// function statUrea(arrData) {
-//   var brandC = accObj = [];
-//   arrData
-//     .filter(function (v) { return v.FBrandCarbaMind != '非尿素' })
-//     .group(ii => ii.FMaterialType3)
-//     .forEach(function (v1, i1) {
-//       var o = {
-//         name: v1.key,
-//         sumQty: 0,
-//         sumAmount: 0,
-//         data: []
-//       }
-//       // 一次循环求两个字段的和
-//       accObj = v1.data.reduce((acc, val) => {
-//         acc.sumQty += val.FBaseQty;
-//         acc.sumAmount += val.FTaxAmount;   //修改为含税的
-//         acc.data.push({
-//           materialNumber: val.FMaterialNumber,
-//           materialName: val.FMaterial,
-//           materialModel: val.FMaterialModel,
-//           qty: val.FBaseQty,
-//           amount: val.FTaxAmount   //修改为含税的
-//         })
-//         return acc;
-//       }, { sumQty: 0, sumAmount: 0, data: [] }); //初始化acc对象！
-//       o.sumQty = accObj.sumQty;
-//       o.sumAmount = accObj.sumAmount;
-//       o.data = accObj.data;
-//       brandC.push(o);
-//     });
-//   //返回处理结果
-//   return brandC;
-// }
 
 /////////////////
 // 这个明细直接必须直接明细到具体物料,否这算法会出错.
@@ -293,7 +251,7 @@ function statInventory(arrData, options) {
     .filter((item) => { return item.FBrandFertilizer != '尿素' && item.FBrandFertilizer != '其他'; })
     .group((item) => { return item.FBrandFertilizer; }) // 这里已经按品牌化肥分好类，格式为[{key: FBrandFertilizer, data:[....]},{key: FBrandFertilizer, data:[....]}]
     .reduce((acc, val) => {
-      let arr = filterAndGroupAndSumByColumn(val.data, { //这里有问题！
+      let arr = filterAndGroupAndSumByColumn(val.data, { //这里有需要分析！
                 group: function(item) {
                   return item.CorrStorageOrgUnitPlus;
                 },
@@ -415,9 +373,9 @@ module.exports = function(startDate) {
   let strDateEnd = bizDateEnd.format('YYYY-MM-DD');
 
   let sqlCommand = new Command(startDate); //实例化Command对象
-  //{ type: sequelize.QueryTypes.SELECT} 只返回Sequelize查询到结果，不返回数据库的元数据。
+
   var query = sequelize.query(sqlCommand.saleOut, {
-    type: sequelize.QueryTypes.SELECT,
+    type: sequelize.QueryTypes.SELECT, // 只返回Sequelize查询到结果，不返回数据库的元数据。
     model: SaleIssueEntry,
     replacements: {
       FBizDateStart: strDateStart,
@@ -498,9 +456,9 @@ module.exports = function(startDate) {
     statDetails: statDetails(curtData,function(v) { return v.FBrandCarbaMind != '非尿素' },function(item) {return item.FMaterialNumber})
   };
 
-  var saleRes = printSaleSummary(statSaleRes, startDate) + '\n\n';
-  var purRes = printPurSummary(statPurRes, startDate)+'\n\n';
-  let invtRes = printInvtSummary(statInventory(invtData))+'\n\n';
+  const saleRes = printSaleSummary(statSaleRes, startDate) + '\n\n';
+  const purRes = printPurSummary(statPurRes, startDate) + '\n\n';
+  const invtRes = printInvtSummary(statInventory(invtData)) + '\n\n';
 
   fs.writeFile('./public/'+ startDate +'.txt', saleRes + purRes + invtRes, 'utf8', function() { 
     console.log('写入完成。');
