@@ -2,9 +2,9 @@ let DailyLogic = require('../logic/daily.server.logic');
 
 module.exports = {
   get: function(req, res, next) {
-    if(!req.params.targetDate) return next(new Error('params is undefined'));
+    if(!req.query.targetDate) return next(new Error('params is undefined'));
     //执行算法对象生成结果文件
-    DailyLogic(req.body.targetDate);
+    DailyLogic(req.query.targetDate);
     res.json({success: true});
   },
   post: function(req, res, next) {

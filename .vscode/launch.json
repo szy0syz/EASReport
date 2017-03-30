@@ -9,7 +9,7 @@
             "request": "launch",
             "name": "启动程序",
             "program": "${workspaceRoot}/bin/www",
-            "cwd": "${workspaceRoot}/",
+            "cwd": "${workspaceRoot}/src",
             "outFiles": []
         },
         {
