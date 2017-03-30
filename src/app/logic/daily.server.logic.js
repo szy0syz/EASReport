@@ -1,8 +1,10 @@
+//日报表统计算法
+//参数：目标日期
 
 var Moment = require('moment');
 var Promise = require("bluebird");
-const Sequelize = require('./config/sequelize');
-const loadModels = require('./config/loadModels')
+const Sequelize = require('../../config/sequelize');
+const loadModels = require('../../config/loadModels')
 const fs = require('fs')
 
 const sequelize = Sequelize();
@@ -11,7 +13,7 @@ const SaleIssueEntry = loadModels(sequelize, 'SaleIssueEntry');
 const PurInEntry = loadModels(sequelize, 'PurInEntry');
 const InventoryEntry = loadModels(sequelize, 'InventoryEntry');
 
-const Command = require('./db/sqlCommand');
+const Command = require('../../db/sqlCommand');
 
 
 /////////////
@@ -473,5 +475,3 @@ module.exports = function(startDate) {
 
   });
 }
-
-
