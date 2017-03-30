@@ -11,7 +11,7 @@ const SaleIssueEntry = loadModels(sequelize, 'SaleIssueEntry');
 const PurInEntry = loadModels(sequelize, 'PurInEntry');
 const InventoryEntry = loadModels(sequelize, 'InventoryEntry');
 
-let Command = require('./db/sqlCommand');
+const Command = require('./db/sqlCommand');
 
 
 /////////////
@@ -314,7 +314,7 @@ function printSaleSummary(statRes, startDate) {
       return acc;
     }, [])
     .join(',');
-  var strSaleSummary = "销售：化肥总售出" + statRes.sumCurtQty.toFixed(2) + "吨，" + (statRes.sumCurtAmount / 10000).toFixed(decimalDigits) + "万元。" +
+  var strSaleSummary = "销售：化肥总售出" + statRes.sumCurtQty.toFixed(decimalDigits) + "吨，" + (statRes.sumCurtAmount / 10000).toFixed(decimalDigits) + "万元。" +
       sumFert + "。" + startDate.split('-')[0] + "年累计销售" + statRes.sumAccCurtQty.toFixed(2) + "吨，同比增长" + ((statRes.sumAccCurtQty / statRes.sumAccLastQty) * 100).toFixed() + "%；累计销额" + (statRes.sumAccCurtAmount / 10000).toFixed(decimalDigits) + "万元，同比增长" + ((statRes.sumAccCurtAmount / statRes.sumAccLastAmount) * 100).toFixed() + "%（以销售出库单统计）。";
   return strSaleSummary;
 }
