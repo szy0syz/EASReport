@@ -169,18 +169,21 @@ return arrData;
   return [];
 }
 
-////CorrStorageOrgUnit
+//统计及时库存
 function statInventory(arrData, options) {
+  //初始化统计结果对象
   let statRes = {
-    sumFertQty: 0,
-    sumUreaQty: 0,
-    summaryFert: [],
-    summartUrea: [],
-    detailUrea: [],
-    detailFert: [],
-    detailOtherFert: []
+    sumFertQty:       0, //化肥总数量
+    sumUreaQty:       0, //尿素总数量
+    summaryFert:      [], //化肥统计数组
+    summartUrea:      [], //尿素统计数组
+    detailUrea:       [], //尿素明细数组
+    detailFert:       [], //化肥明细数组
+    detailOtherFert:  [] //其它化肥明细
   }
-  ///////为了把直营店数据联合进分公司
+
+  //--------------------------------------------------------
+  //将分公司所属直营店修正后放入CorrStorageOrgUnit，此字段仅有分公司名称。
   arrData.map((item) => {
     if(item.FParentStorageOrgUnit == '云南供销农资连锁总部') {
       item.CorrStorageOrgUnit = item.FShopAttributionUnit;
@@ -192,7 +195,10 @@ function statInventory(arrData, options) {
       item.CorrStorageOrgUnit = item.FParentStorageOrgUnit;
     }
   });
-  ////////再细分组织，仅有分公司和进出口部
+  //--------------------------------------------------------
+
+  //--------------------------------------------------------
+  //再细分组织，仅有分公司和进出口部
   arrData.map((item) => {
     if(item.FStorageOrgUnit == '进出口部') {
       item.CorrStorageOrgUnitPlus = '进出口部';
@@ -201,6 +207,7 @@ function statInventory(arrData, options) {
       item.CorrStorageOrgUnitPlus = '分公司';
     }
   })
+  //--------------------------------------------------------
 
   // arrDataOri代表未分组时库存物料信息(已经细分过两次) 
   let arrDataOri = arrData.slice(); //复制数组
