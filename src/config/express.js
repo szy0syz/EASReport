@@ -7,7 +7,7 @@ module.exports = function() {
   let app = express();
 
   app.use(express.static('public'));
-  app.use(require('body-parser')());
+  app.use(bodyParser());
   app.engine('handlebars', exphbs({defaultLayout: 'main'})); //设置模板页名称main
   app.set('view engine', 'handlebars');
 

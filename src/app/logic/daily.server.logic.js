@@ -127,7 +127,7 @@ function statDetails(arrData, filter, group) {
 
 function sumByColumnName(arrData, cn) {
   let sum = arrData.reduce((acc, val) => {
-    acc += Number(val[cn]);
+    acc += Number(val[cn]); 
     return acc;
   }, 0);
   return sum;
@@ -150,7 +150,7 @@ function groupAndSumByColumn(arrData, group, colName) {
 //         options = {fitter, group, colName}
 // return: array[{name: xx, sum:yy}, {name: xx, sum:yy}]
 function filterAndGroupAndSumByColumn(arrData, options) {
-  // 检查arrData不能为空，为空educe报错。
+  // 检查arrData不能为空，为空reduce报错。
   if(arrData) {
     // 先过滤
     if(options.filter) {
@@ -306,7 +306,7 @@ function statInventoryPlus(arrData, options) {
     detailOtherFert:  [], //其它化肥明细
 
     sumFertQty:       0, //化肥总数量
-    sumFertSubBranchQty: 0,       //除去进出口部分公司的化肥库存总数
+    sumFertSubBranchQty: 0,       //除去进出口部,尿素&其他化肥 分公司的化肥库存总数
     sumUreaSubBranchDetailQty: 0, //除进出口部分公司尿素库存总数
     sumOtherFertSubBranchQty: 0,  //除进出口部分公司其他化肥总数
     sumOtherFertSubDetailQty: [],  //除进出口部分公司其他化肥明细数组
@@ -345,11 +345,39 @@ function statInventoryPlus(arrData, options) {
   // arrDataOri代表未分组时库存物料信息(已经细分过两次) 
   let arrDataOri = arrData.slice(); //复制数组,已经是新数组,引用已变.
 
+  //----求公司的库存化肥数量
+  statRes.sumFertQty = sumByColumnName(arrData, 'FInventoryEndQty');
 
 
+  //----------求五大分公司化肥库存数量数组
+  arrData = [];
+  arrData = arrDataOri.slice();
+  statRes.sumFertSubBranchQty = filterAndGroupAndSumByColumn(arrData, {
+    filter: function(item) { //过滤非进出口部，非期末库存为0
+      return item.CorrStorageOrgUnit != '进出口部' && item.FInventoryEndQty != 0 //过滤非进出口部
+    },
+    group: function(item) {
+      return item.CorrStorageOrgUnit; //按修正后的库存组织分组聚会
+    },
+    colName: 'FInventoryEndQty' //按期末库存求和
+  })
+  //----------
+
+  //修复小数点位数啊！！！！
   //---------------求进出口部库存化肥明细---------------------
-  arrData
-    .filter((item) => { return item.CorrStorageOrgUnitPlus == '进出口部'; })
+  arrData = [];
+  arrData = arrDataOri.slice();
+  statRes.jckSumFertDetailQty = filterAndGroupAndSumByColumn(arrData, {
+                      filter: function(item) {
+                        return item.CorrStorageOrgUnitPlus == '进出口部' && item.FInventoryEndQty != 0; //过滤进出口部数据
+                      },
+                      group: function(item) {
+                        return item.FBrandFertilizer; //按化肥类别分组
+                      },
+                      colName: 'FInventoryEndQty'
+                    });
+  statRes.jckSumFertQty = sumByColumnName(statRes.jckSumFertDetailQty, 'sum');
+  //arrJCKDetail.map((item) =>  {return Number(item.sum).toFixed(1)});
   //--------------------------------------------------------
 
 
@@ -614,6 +642,7 @@ module.exports = function(startDate) {
   const saleRes = printSaleSummary(statSaleRes, startDate) + '\n\n';
   const purRes = printPurSummary(statPurRes, startDate) + '\n\n';
   const invtRes = printInvtSummary(statInventory(invtData)) + '\n\n';
+  const invtRes1 = statInventoryPlus(invtData);
 
   fs.writeFile('./public/'+ startDate +'.txt', saleRes + purRes + invtRes, 'utf8', function() { 
     console.log('写入完成。');
