@@ -299,12 +299,12 @@ function statInventoryPlus(arrData, options) {
   let statRes = {
     sumFertQty:       0, //化肥总数量
     sumFertSubBranchQty: 0,       //除去进出口部,尿素&其他化肥 分公司的化肥库存总数
+    sumFertSubBranchDetailQty: [], //除去进出口部,尿素&其他化肥 分公司的化肥库存分类明细
     sumUreaSubBranchDetailQty: [], //除进出口部分公司尿素库存总数
     sumUreaSubBranchQty: 0,  //五大分公司库存尿素总数
     sumUreaSubBranchMaterialDetailQty: [], //五大分公司说库存具体尿素物料明细
     sumOtherFertSubBranchQty: 0,  //除进出口部分公司其他化肥总数
     sumOtherFertSubDetailQty: [],  //除进出口部分公司其他化肥明细数组
-    detailOtherFert:  [], //其它化肥明细
     jckSumFertQty: 0,     //进出口部化肥库存总数
     jckSumFertDetailQty: 0 //进出口部化肥库存明细数据
   }
@@ -346,7 +346,7 @@ function statInventoryPlus(arrData, options) {
   //----------求五大分公司化肥库存数量数组
   arrData = [];
   arrData = arrDataOri.slice();
-  statRes.sumFertSubBranchQty = filterAndGroupAndSumByColumn(arrData, {
+  statRes.sumFertSubBranchDetailQty = filterAndGroupAndSumByColumn(arrData, {
     filter: function(item) { //过滤非进出口部，非期末库存为0
       return item.CorrStorageOrgUnit != '进出口部' && item.FInventoryEndQty != 0 //过滤非进出口部
     },
@@ -355,6 +355,9 @@ function statInventoryPlus(arrData, options) {
     },
     colName: 'FInventoryEndQty' //按期末库存求和
   })
+
+  //----------求五大分公司化肥库存数量数组
+  statRes.sumFertSubBranchQty = sumByColumnName(statRes.sumFertSubBranchDetailQty, 'sum');
   //----------
 
   //----------求公司尿素库存数量数组
@@ -619,7 +622,24 @@ module.exports = function(startDate) {
   const saleRes = printSaleSummary(statSaleRes, startDate) + '\n\n';
   const purRes = printPurSummary(statPurRes, startDate) + '\n\n';
   const invtRes = printInvtSummary(statInventory(invtData)) + '\n\n';
-  const invtRes1 = statInventoryPlus(invtData);
+  //statInventoryPlus(invtData) 这货不是数组  Object.keys
+  let invtRes1 = statInventoryPlus(invtData);
+  Object.keys(invtRes1).forEach((k,i) =>  {
+    if(Object.prototype.toString.call(invtRes1[k]) === '[object Array]') {
+      invtRes1[k].map((raw) => {
+        return `${raw[name]}${raw[sum]}吨`
+      });
+      invtRes1[k].join(',');
+    }
+  })
+  console.log(invtRes1);
+  // const invtRes1 = statInventoryPlus(invtData).map((item) => {
+  //   if(Object.prototype.toString.call(item) === '[object Array]') {
+  //     item.map((raw) => {
+  //       return `${raw[name]}${raw[sum]}吨`
+  //     })
+  //   }
+  // });
 
   fs.writeFile('./public/'+ startDate +'.txt', saleRes + purRes + invtRes, 'utf8', function() { 
     console.log('写入完成。');

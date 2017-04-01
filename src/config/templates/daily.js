@@ -11,7 +11,7 @@ module.exports = function(res) {
     let invtReport = `
         三、库存：全公司化肥库存${invtObj.sumFertQty}吨。其中
         1、分公司库存${invtObj.sumFertSubBranchQty}吨（${invtObj.sumFertSubBranchDetailQty}），
-        （${invtObj.sumUreaSubBranchDetailQty}，其中${invtObj.sumUreaSubBranchMaterialDetailQty}），
+        尿素（${invtObj.sumUreaSubBranchDetailQty}顿，其中${invtObj.sumUreaSubBranchMaterialDetailQty}），
         ${invtObj.sumFertSubBranchQtyEx}，
         其它${invtObj.sumOtherFertSubBranchQty}吨（${invtObj.jckSumFertDetailQty}）。
         2、进出口部库存${invtObj.jckSumFertQty}吨（${invtObj.jckSumFertDetailQty}）。
