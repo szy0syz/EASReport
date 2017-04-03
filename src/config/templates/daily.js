@@ -13,7 +13,7 @@ module.exports = function(res) {
         1、分公司库存${invtObj.sumFertSubBranchQty}吨（${invtObj.sumFertSubBranchDetailQty}），
         尿素（${invtObj.sumUreaSubBranchDetailQty}顿，其中${invtObj.sumUreaSubBranchMaterialDetailQty}），
         ${invtObj.sumFertSubBranchQtyEx}，
-        其它${invtObj.sumOtherFertSubBranchQty}吨（${invtObj.jckSumFertDetailQty}）。
+        其它${invtObj.sumOtherFertSubBranchQty}吨（${invtObj.sumOtherFertSubDetailQty}）。
         2、进出口部库存${invtObj.jckSumFertQty}吨（${invtObj.jckSumFertDetailQty}）。
     `
 

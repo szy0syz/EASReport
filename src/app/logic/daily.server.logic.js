@@ -129,7 +129,7 @@ function sumByColumnName(arrData, cn) {
   let sum = arrData.reduce((acc, val) => {
     acc += Number(val[cn]); 
     return acc;
-  }, 0);
+  }, 0.0);
   return sum;
 }
 
@@ -293,6 +293,7 @@ function statInventory(arrData, options) {
   return statRes;
 }
 
+/////////////////////////////////////////////////////////////////////////////////
 //统计及时库存plus
 function statInventoryPlus(arrData, options) {
   //初始化统计结果对象
@@ -340,7 +341,7 @@ function statInventoryPlus(arrData, options) {
   let arrDataOri = arrData.slice(); //复制数组,已经是新数组,引用已变.
 
   //----求公司的库存化肥数量
-  statRes.sumFertQty = sumByColumnName(arrData, 'FInventoryEndQty');
+  statRes.sumFertQty = sumByColumnName(arrData, 'FInventoryEndQty').toFixed(1);
 
 
   //----------求五大分公司化肥库存数量数组
@@ -357,7 +358,7 @@ function statInventoryPlus(arrData, options) {
   })
 
   //----------求五大分公司化肥库存数量数组
-  statRes.sumFertSubBranchQty = sumByColumnName(statRes.sumFertSubBranchDetailQty, 'sum');
+  statRes.sumFertSubBranchQty = sumByColumnName(statRes.sumFertSubBranchDetailQty, 'sum').toFixed(1);
   //----------
 
   //----------求公司尿素库存数量数组
@@ -375,7 +376,7 @@ function statInventoryPlus(arrData, options) {
   //----------
 
   //----求五大分公司的库存尿素数量
-  statRes.sumUreaSubBranchQty = sumByColumnName(statRes.sumUreaSubBranchDetailQty, 'sum');
+  statRes.sumUreaSubBranchQty = sumByColumnName(statRes.sumUreaSubBranchDetailQty, 'sum').toFixed(1);
 
   //求五大分公司库存尿素物料明细数组, 云化2767吨，解化2吨，川化2吨，美丰3363吨，湖光7.......
   arrData = [];
@@ -430,12 +431,23 @@ function statInventoryPlus(arrData, options) {
                       },
                       colName: 'FInventoryEndQty'
                     });
-  statRes.jckSumFertQty = sumByColumnName(statRes.jckSumFertDetailQty, 'sum');
+  statRes.jckSumFertQty = sumByColumnName(statRes.jckSumFertDetailQty, 'sum').toFixed(1);
   //arrJCKDetail.map((item) =>  {return Number(item.sum).toFixed(1)});
   //--------------------------------------------------------
 
-  console.log(statRes);
-  console.log(dailyTemplate({invt: statRes}));
+  //console.log(statRes);
+
+  let invtRes1 = statRes;
+  Object.keys(invtRes1).forEach((k,i) =>  {
+    if(Object.prototype.toString.call(invtRes1[k]) === '[object Array]') {
+      invtRes1[k] = invtRes1[k].reduce((acc, val) => {
+        acc.push(`${val['name']}${val['sum'].toFixed(1)}吨`);
+        return acc;
+      },[]).join();
+    }
+  });
+
+  //console.log(dailyTemplate({invt: invtRes1}));
   return statRes;
 }
 
@@ -621,25 +633,9 @@ module.exports = function(startDate) {
 
   const saleRes = printSaleSummary(statSaleRes, startDate) + '\n\n';
   const purRes = printPurSummary(statPurRes, startDate) + '\n\n';
-  const invtRes = printInvtSummary(statInventory(invtData)) + '\n\n';
-  //statInventoryPlus(invtData) 这货不是数组  Object.keys
-  let invtRes1 = statInventoryPlus(invtData);
-  Object.keys(invtRes1).forEach((k,i) =>  {
-    if(Object.prototype.toString.call(invtRes1[k]) === '[object Array]') {
-      invtRes1[k].map((raw) => {
-        return `${raw[name]}${raw[sum]}吨`
-      });
-      invtRes1[k].join(',');
-    }
-  })
-  console.log(invtRes1);
-  // const invtRes1 = statInventoryPlus(invtData).map((item) => {
-  //   if(Object.prototype.toString.call(item) === '[object Array]') {
-  //     item.map((raw) => {
-  //       return `${raw[name]}${raw[sum]}吨`
-  //     })
-  //   }
-  // });
+  //const invtRes = printInvtSummary(statInventory(invtData)) + '\n\n';
+  const invtRes0 = statInventoryPlus(invtData);//dailyTemplate({invt: invtRes1})
+  const invtRes = dailyTemplate({invt: invtRes0})
 
   fs.writeFile('./public/'+ startDate +'.txt', saleRes + purRes + invtRes, 'utf8', function() { 
     console.log('写入完成。');
