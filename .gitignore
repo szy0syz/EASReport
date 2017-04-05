@@ -34,6 +34,7 @@ public
 
 # configuration
 *lopment.js
+/src/config/env/
 
 #mac os
 .DS_Store
