@@ -4,5 +4,6 @@ module.exports = {
     dialectOptions: {
       requestTimeout: 60*1000
     }
-  }
+  },
+  port: 6006
 }
