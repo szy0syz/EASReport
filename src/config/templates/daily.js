@@ -1,4 +1,17 @@
 module.exports = function(res) {
+    let purObj = res.pur;
+    //purObj对象格式：{
+    //    sumFertQty:       0, //全公司化肥总购入数量
+    //    sumFertAmount:    0, //全公司化肥总购入金额
+    //    detailFertQty:    0, //化肥购进数量明细
+    //}
+    //采购报表:其实
+    let pruReport = `
+        一、购进：化肥总购进${purObj.sumFertQty}吨，${purObj.sumFertAmount}万元。其中尿素360吨（湖光，单价1800）。
+    
+    `;
+
+
     let invtObj = res.invt;
     //invtObj.sumFertSubBranchDetailQty = 滇中11792吨，楚雄13334吨，开远12124吨，大理18283吨，滇东北4644吨
     //invtObj.sumUreaSubBranchDetailQty = 滇中6859吨，楚雄7000吨，开远9525吨，大理13647吨，滇东北2621吨
