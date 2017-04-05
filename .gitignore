@@ -32,6 +32,9 @@ cmstest
 #backend no public
 public
 
+# configuration
+src/config/env/development.js
+
 #mac os
 .DS_Store
 .DS_Store?
