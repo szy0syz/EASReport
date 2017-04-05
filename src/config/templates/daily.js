@@ -1,21 +1,21 @@
 module.exports = function(res) {
-    // let purObj = res.pur;
-    // //purObj对象格式：{
-    // //    sumFertQty:       0, //全公司化肥总购入数量
-    // //    sumFertAmount:    0, //全公司化肥总购入金额
-    // //    detailFert:       [],//全公司化肥购进明细，其为一个对象数据，格式：[{name:'尿素', sum 123.0, data:[{name:'湖光尿素', qty:44, price:2000, model:'13-5-7'}, {name:'816尿素', qty:44, price:2000, model:'13-5-7'}]} ]
-    // //}
+    let purObj = res.pur;
+    //purObj对象格式：{
+    //    sumFertQty:       0, //全公司化肥总购入数量
+    //    sumFertAmount:    0, //全公司化肥总购入金额
+    //    detailFert:       [],//全公司化肥购进明细，其为一个对象数据，格式：[{name:'尿素', sum 123.0, data:[{name:'湖光尿素', qty:44, price:2000, model:'13-5-7'}, {name:'816尿素', qty:44, price:2000, model:'13-5-7'}]} ]
+    //}
     // //采购报表:其实
     // let purReport = `
     //     一、购进：化肥总购进${purObj.sumFertQty}吨，${purObj.sumFertAmount}万元。`;
     // //purReport += purReport + `其中尿素${detailFert.filter((i) => i.)}吨（湖光，单价1800）。`;
 
-    // let saleObj = res.sale;
-    // //purObj对象格式：{
-    // //    sumFertQty:       0, //全公司化肥总销售数量
-    // //    sumFertAmount:    0, //全公司化肥总销售金额
-    // //    detailFert:    0, //化肥销售数量明细
-    // //}
+    let saleObj = res.sale;
+    //purObj对象格式：{
+    //    sumFertQty:       0, //全公司化肥总销售数量
+    //    sumFertAmount:    0, //全公司化肥总销售金额
+    //    detailFert:    0, //化肥销售数量明细
+    //}
     // //采购报表:其实
     // let saleReport = `
     //     二、销售：化肥总售出530吨，105万元。其中尿素446吨（云化32吨，均单价1962；美丰59吨，单价1880；湖光5吨，单价1880；丰喜207吨，均单价1886；工农111吨，均单价1851；华锦32吨，单价1800），
