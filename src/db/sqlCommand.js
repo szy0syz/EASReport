@@ -145,6 +145,6 @@ function Command (targetDate) {
     this.purIn += " AND pb.FCreateTime between :FBizDateStart and :FBizDateEnd";
   } else {
     this.saleOut += " AND sb.FBizDate between :FBizDateStart and :FBizDateEnd";
-    this.PruIn += " AND pb.FBizDate between :FBizDateStart and :FBizDateEnd";
+    this.purIn += " AND pb.FBizDate between :FBizDateStart and :FBizDateEnd";
   }
 }

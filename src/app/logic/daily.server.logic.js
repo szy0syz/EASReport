@@ -345,7 +345,7 @@ function printSaleSummary(statRes, startDate) {
         acc.push(val.name + val.sumQty.toFixed(decimalDigits) + '吨' + "(" + printDetailsSummary(val.details) + ")");
       } else { //这里只为“尿素”分类打印明细
         acc.push(val.name + val.sumQty.toFixed(decimalDigits) + '吨');
-      }     
+      }        
       return acc;
     }, [])
     .join(',');
@@ -358,11 +358,13 @@ function printPurSummary(statRes, startDate) {
   let sumFert = statRes
     .statFertRes.filter((item) => { return item.sumQty != 0 }) //item.name != '尿素' && 
     .reduce((acc, val) => {
-      if(val.name == "尿素") {
-        acc.push(val.name + val.sumQty.toFixed(decimalDigits) + '吨' + "(" + printDetailsSummary(val.details) + ")");
-      } else { //这里只为“尿素”分类打印明细
-        acc.push(val.name + val.sumQty.toFixed(decimalDigits) + '吨');
-      }
+      // if(val.name == "尿素") {
+      //   acc.push(val.name + val.sumQty.toFixed(decimalDigits) + '吨' + "(" + printDetailsSummary(val.details) + ")");
+      // } else { //这里只为“尿素”分类打印明细
+      //   acc.push(val.name + val.sumQty.toFixed(decimalDigits) + '吨');
+      // }
+      //所有物料都明细
+      acc.push(val.name + val.sumQty.toFixed(decimalDigits) + '吨' + "(" + printDetailsSummary(val.details) + ")");
       return acc;
     }, [])
     .join(',');
