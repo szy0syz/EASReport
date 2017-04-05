@@ -289,7 +289,7 @@ function statInventory(arrData, options) {
   arrData = arrDataOri.slice();
   statRes.jckSumFertDetailQty = filterAndGroupAndSumByColumn(arrData, {
                       filter: function(item) {
-                        return item.CorrStorageOrgUnitPlus == '进出口部' && item.FInventoryEndQty != 0; //过滤进出口部数据
+                        return item.CorrStorageOrgUnit == '进出口部' && item.FInventoryEndQty != 0; //过滤进出口部数据
                       },
                       group: function(item) {
                         return item.FBrandFertilizer; //按化肥类别分组
