@@ -33,7 +33,7 @@ cmstest
 public
 
 # configuration
-development.js
+*lopment.js
 
 #mac os
 .DS_Store
