@@ -495,7 +495,7 @@ module.exports = function(startDate) {
 
   const saleRes = printSaleSummary(statSaleRes, startDate) + '\n\n';
   const purRes = printPurSummary(statPurRes, startDate) + '\n\n';
-  //const invtRes = printInvtSummary(statInventory(invtData)) + '\n\n';
+  
   const invtRes0 = statInventory(invtData);
   const invtRes = dailyTemplate({invt: invtRes0})
 
