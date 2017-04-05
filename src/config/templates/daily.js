@@ -3,11 +3,24 @@ module.exports = function(res) {
     //purObj对象格式：{
     //    sumFertQty:       0, //全公司化肥总购入数量
     //    sumFertAmount:    0, //全公司化肥总购入金额
-    //    detailFertQty:    0, //化肥购进数量明细
+    //    detailFert:    0, //化肥购进数量明细
     //}
     //采购报表:其实
-    let pruReport = `
+    let purReport = `
         一、购进：化肥总购进${purObj.sumFertQty}吨，${purObj.sumFertAmount}万元。其中尿素360吨（湖光，单价1800）。
+    
+    `;
+
+    let saleObj = res.sale;
+    //purObj对象格式：{
+    //    sumFertQty:       0, //全公司化肥总销售数量
+    //    sumFertAmount:    0, //全公司化肥总销售金额
+    //    detailFert:    0, //化肥销售数量明细
+    //}
+    //采购报表:其实
+    let saleReport = `
+        二、销售：化肥总售出530吨，105万元。其中尿素446吨（云化32吨，均单价1962；美丰59吨，单价1880；湖光5吨，单价1880；丰喜207吨，均单价1886；工农111吨，均单价1851；华锦32吨，单价1800），
+        硝磷铵2吨，普钙13吨，钾肥40吨，复合肥30吨（高含量27吨）。2017年累计销售95965吨，同比增长28%；累计销额14906万元，同比增长38%（以销售出库单统计）。
     
     `;
 
