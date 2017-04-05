@@ -7,6 +7,7 @@ const Sequelize = require('../../config/sequelize');
 const loadModels = require('../../config/loadModels');
 const fs = require('fs')
 
+let dailyInvtModel = require('../models/daily.invt.model');
 let dailyTemplate = require('../../config/templates/daily');
 
 const sequelize = Sequelize();
