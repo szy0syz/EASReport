@@ -356,15 +356,17 @@ function printSaleSummary(statRes, startDate) {
 
 function printPurSummary(statRes, startDate) {
   let sumFert = statRes
-    .statFertRes.filter((item) => { return item.sumQty != 0 }) //item.name != '尿素' && 
+    .statFertRes.filter((item) => { return item.sumQty != 0 }) 
     .reduce((acc, val) => {
       // if(val.name == "尿素") {
       //   acc.push(val.name + val.sumQty.toFixed(decimalDigits) + '吨' + "(" + printDetailsSummary(val.details) + ")");
       // } else { //这里只为“尿素”分类打印明细
       //   acc.push(val.name + val.sumQty.toFixed(decimalDigits) + '吨');
       // }
-      //所有物料都明细
-      acc.push(val.name + val.sumQty.toFixed(decimalDigits) + '吨' + "(" + printDetailsSummary(val.details) + ")");
+      //所有物料都明细:尿素22吨（湖光尿素22吨，单价1700元）
+      //acc.push(val.name + val.sumQty.toFixed(decimalDigits) + '吨' + "(" + printDetailsSummary(val.details) + ")");
+      //只打印所有物料,不再打印大类合计了。
+      acc.push(printDetailsSummary(val.details))
       return acc;
     }, [])
     .join(',');
