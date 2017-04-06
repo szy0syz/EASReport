@@ -17,7 +17,7 @@ module.exports = function() {
   //加载路由...
   require('../app/routes/daily.server.route')(app);
   
-  app.use(expressWinston.errorLogger({
+  app.use(exWinston.errorLogger({
   transports: [
     new winston.transports.Console({
       json: true,
