@@ -6,6 +6,7 @@ let Promise = require("bluebird");
 const Sequelize = require('../../config/sequelize');
 const loadModels = require('../../config/loadModels');
 const fs = require('fs')
+const config = require('../../config/config');
 
 let dailyInvtModel = require('../models/daily.invt.model');
 let dailyTemplate = require('../../config/templates/daily');
@@ -33,8 +34,6 @@ Object.defineProperty(Array.prototype, 'group2', {
 });
 /////////////
 
-
-
 Object.defineProperty(Array.prototype, 'group', {
   enumerable: false,
   value: function (key) {
@@ -50,6 +49,15 @@ Object.defineProperty(Array.prototype, 'group', {
   }
 })
 
+//根据传入的数组分析化肥大类统计结果，返回的是一个对象数组。
+//其中返回对象格式：
+// {
+//   name:'高含量',
+//   sumQty: 120,
+//   sumAmount: 400320.00,
+//   detail: [...{key: '火炬牌', name:'火炬牌复合肥', model: '15-15-15,50kg', sumQty: 120, sumAmount: 258000, type0:'化肥', type1: '复合肥', type2: '火炬牌', type3: '火炬牌', data:[metadata]}...],
+//   data: [...metadata...]
+// }
 function statFert(arrData) {
   //以后这里从数据库取，不要写死！
   var brandFString = ['尿素', '碳铵', '硫铵', '氯化铵', '硝磷铵', '普钙', '重钙', '钙镁', '磷铵', '富钙', '硫酸钾', '氯化钾', '硫酸钾肥', '高含量', '低含量']
@@ -92,6 +100,7 @@ function statFert(arrData) {
 /////////////////
 // 这个明细直接必须直接明细到具体物料,否这算法会出错.
 // 这个算法还是有点耦合了,后期改。
+// 返回对象{key: '火炬牌', name:'火炬牌复合肥', model: '15-15-15,50kg', sumQty: 120, sumAmount: 258000, type0:'化肥', type1: '复合肥', type2: '火炬牌', type3: '火炬牌', data:[metadata]}
 /////////////////
 function statDetails(arrData, filter, group) {
   let res = [],
@@ -314,10 +323,8 @@ function statInventory(arrData, options) {
   return statRes;
 }
 
-
-
 ////////////////////////////////////////////////
-const decimalDigits = 0;
+config.decimalDigits = 0;
 ////
 function printDetailsSummary(arrData) {  //数组要用reduce 一定要把空的剔除！
   let sumDetailsReport;
@@ -331,9 +338,6 @@ function printDetailsSummary(arrData) {  //数组要用reduce 一定要把空的
   }
   return sumDetailsReport;
 }
-
-
-
 
 ////
 function printSaleSummary(statRes, startDate) {
