@@ -7,7 +7,7 @@ const Sequelize = require('../../config/sequelize');
 const loadModels = require('../../config/loadModels');
 const fs = require('fs')
 const config = require('../../config/config');
-
+const utils = require('../utils/util');
 let dailyInvtModel = require('../models/daily.invt.model');
 let dailyTemplate = require('../../config/templates/daily');
 
@@ -135,54 +135,6 @@ function statDetails(arrData, filter, group) {
     return res;
 }
 
-function sumByColumnName(arrData, cn) {
-  let sum = arrData.reduce((acc, val) => {
-    acc += Number(val[cn]); 
-    return acc;
-  }, 0.0);
-  return sum;
-}
-
-function groupAndSumByColumn(arrData, group, colName) {
-  // 要保证arrData里的数据没有null！
-  arrData = arrData.group(group);
-  arrData = arrData.reduce((acc, val) => {
-    acc.push({
-      name: val.key,
-      sum: sumByColumnName(val.data, colName)
-    })
-    return acc;
-  }, [])
-}
-
-/////////////////////////////////////////////////////////
-// paras:  arrData = sql metadata models
-//         options = {fitter, group, colName}
-// return: array[{name: xx, sum:yy}, {name: xx, sum:yy}]
-function filterAndGroupAndSumByColumn(arrData, options) {
-  // 检查arrData不能为空，为空reduce报错。
-  if(arrData) {
-    // 先过滤
-    if(options.filter) {
-      arrData = arrData.filter(options.filter);
-    }
-    // 再分组
-    if(options.group) {
-      arrData = arrData.group(options.group);
-    }
-    // 最后聚合
-    arrData = arrData.reduce((acc, val) => {
-    acc.push({
-      name: val.key,
-      sum: sumByColumnName(val.data, options.colName) //待判断！！
-    })
-    return acc;
-  }, [])
-}
-return arrData;
-  return [];
-}
-
 /////////////////////////////////////////////////////////////////////////////////
 //统计及时库存
 function statInventory(arrData, options) {
@@ -223,7 +175,7 @@ function statInventory(arrData, options) {
   //----------求五大分公司化肥库存数量数组
   arrData = [];
   arrData = arrDataOri.slice();
-  statRes.sumFertSubBranchDetailQty = filterAndGroupAndSumByColumn(arrData, {
+  statRes.sumFertSubBranchDetailQty = utils.filterAndGroupAndSumByColumn(arrData, {
     filter: function(item) { //过滤非进出口部，非期末库存为0
       return item.CorrStorageOrgUnit != '进出口部' && item.FInventoryEndQty != 0 //过滤非进出口部
     },
@@ -240,7 +192,7 @@ function statInventory(arrData, options) {
   //----------求公司尿素库存数量数组
   arrData = [];
   arrData = arrDataOri.slice();
-  statRes.sumUreaSubBranchDetailQty = filterAndGroupAndSumByColumn(arrData, {
+  statRes.sumUreaSubBranchDetailQty = utils.filterAndGroupAndSumByColumn(arrData, {
     filter: function(item) { //过滤非进出口部，非期末库存为0
       return item.CorrStorageOrgUnit != '进出口部' && item.FInventoryEndQty != 0 && item.FBrandCarbaMind != '非尿素' 
     },
@@ -257,7 +209,7 @@ function statInventory(arrData, options) {
   //求五大分公司库存尿素物料明细数组, 云化2767吨，解化2吨，川化2吨，美丰3363吨，湖光7.......
   arrData = [];
   arrData = arrDataOri.slice();
-  statRes.sumUreaSubBranchMaterialDetailQty = filterAndGroupAndSumByColumn(arrData, {
+  statRes.sumUreaSubBranchMaterialDetailQty = utils.filterAndGroupAndSumByColumn(arrData, {
     filter: function(item) { //先过滤出来五大分公司所有库存尿素物料明细
       return item.CorrStorageOrgUnit != '进出口部' && item.FInventoryEndQty != 0 && item.FBrandCarbaMind != '非尿素'
     },
@@ -271,7 +223,7 @@ function statInventory(arrData, options) {
   //求五大分公司库存除尿素和其它化肥以外 物料明细数组
   arrData = [];
   arrData = arrDataOri.slice();
-  statRes.sumFertSubBranchQtyEx = filterAndGroupAndSumByColumn(arrData, {
+  statRes.sumFertSubBranchQtyEx = utils.filterAndGroupAndSumByColumn(arrData, {
     filter: function(item) { //
       return item.CorrStorageOrgUnit != '进出口部' && item.FInventoryEndQty != 0 && item.FBrandFertilizer != '其它' && item.FBrandFertilizer != '尿素'
     },
@@ -283,7 +235,7 @@ function statInventory(arrData, options) {
 
   //sumOtherFertSubBranchQty = 其它98吨
   //sumOtherFertSubDetailQty = 纳若夏有机肥19吨，明月47吨，金满田32吨
-  statRes.sumOtherFertSubDetailQty = filterAndGroupAndSumByColumn(arrData, {
+  statRes.sumOtherFertSubDetailQty = utils.filterAndGroupAndSumByColumn(arrData, {
     filter: function(item) {
       return item.CorrStorageOrgUnit != '进出口部' && item.FInventoryEndQty != 0 && item.FBrandFertilizer == '其它';
     },
@@ -297,7 +249,7 @@ function statInventory(arrData, options) {
   //---------------求进出口部库存化肥明细---------------------
   arrData = [];
   arrData = arrDataOri.slice();
-  statRes.jckSumFertDetailQty = filterAndGroupAndSumByColumn(arrData, {
+  statRes.jckSumFertDetailQty = utils.filterAndGroupAndSumByColumn(arrData, {
                       filter: function(item) {
                         return item.CorrStorageOrgUnit == '进出口部' && item.FInventoryEndQty != 0; //过滤进出口部数据
                       },
@@ -324,7 +276,7 @@ function statInventory(arrData, options) {
 }
 
 ////////////////////////////////////////////////
-config.decimalDigits = 0;
+const decimalDigits = config.decimalDigits = 0;
 ////
 function printDetailsSummary(arrData) {  //数组要用reduce 一定要把空的剔除！
   let sumDetailsReport;
@@ -342,7 +294,6 @@ function printDetailsSummary(arrData) {  //数组要用reduce 一定要把空的
 ////
 function printSaleSummary(statRes, startDate) {
   var sumFert = statRes
-    //.statFertRes.filter((item) => { return item.name != '尿素' && item.sumQty != 0 })
     .statFertRes.filter((item) => { return item.sumQty != 0 })
     .reduce((acc, val) => {
       if(val.name == "尿素") {
@@ -392,12 +343,12 @@ function printInvtSummary(statRes, endDate) {
     + statRes.detailFert.reduce((acc, val) => {
       if(val.data.length == 1) acc.push(val.key + val.data[0].sum.toFixed(decimalDigits) + '吨');
       else {
-        acc.push(val.key + sumByColumnName(val.data, 'sum').toFixed(decimalDigits) + '吨' + '(' + val.data.reduce((a, v) => {a.push(v.name + v.sum.toFixed(decimalDigits));return a;}, []).join(',') + ')');
+        acc.push(val.key + utils.sumByColumnName(val.data, 'sum').toFixed(decimalDigits) + '吨' + '(' + val.data.reduce((a, v) => {a.push(v.name + v.sum.toFixed(decimalDigits));return a;}, []).join(',') + ')');
       }
       return acc;
     },[]).join(',')
     + '，'
-    + '其他肥' + sumByColumnName(statRes.detailOtherFert, 'sum').toFixed(0) + '吨（'
+    + '其他肥' + utils.sumByColumnName(statRes.detailOtherFert, 'sum').toFixed(0) + '吨（'
     + statRes.detailOtherFert.reduce((acc, val) => {acc.push(val.name + val.sum + '吨');return acc;},[]).join(',')
     + ')。 ';
 
@@ -482,23 +433,23 @@ module.exports = function(startDate) {
 
   Promise.join(query, queryCurtAcc, queryLastAcc, queryPurIn, queryPurInCurtAcc, queryPurInLastAcc, queryInventory, function (curtData, curtAccData, lastAccData, curtPurData, curtPurAccData, lastPurAccData, invtData) {
   var statSaleRes = {
-    sumCurtQty: sumByColumnName(curtData, 'FBaseQty'),
-    sumCurtAmount: sumByColumnName(curtData, 'FAmount'),
+    sumCurtQty: utils.sumByColumnName(curtData, 'FBaseQty'),
+    sumCurtAmount: utils.sumByColumnName(curtData, 'FAmount'),
     statFertRes: statFert(curtData),
-    sumAccCurtQty: sumByColumnName(curtAccData, 'FBaseQty'),
-    sumAccCurtAmount: sumByColumnName(curtAccData, 'FAmount'),
-    sumAccLastQty: sumByColumnName(lastAccData, 'FBaseQty'),
-    sumAccLastAmount: sumByColumnName(lastAccData, 'FAmount'),
+    sumAccCurtQty: utils.sumByColumnName(curtAccData, 'FBaseQty'),
+    sumAccCurtAmount: utils.sumByColumnName(curtAccData, 'FAmount'),
+    sumAccLastQty: utils.sumByColumnName(lastAccData, 'FBaseQty'),
+    sumAccLastAmount: utils.sumByColumnName(lastAccData, 'FAmount'),
     statDetails: statDetails(curtData,function(v) { return v.FBrandCarbaMind != '非尿素' },function(item) {return item.FMaterialNumber})
   };
   var statPurRes = {
-    sumCurtQty: sumByColumnName(curtPurData, 'FBaseQty'),
-    sumCurtAmount: sumByColumnName(curtPurData, 'FTaxAmount'),
+    sumCurtQty: utils.sumByColumnName(curtPurData, 'FBaseQty'),
+    sumCurtAmount: utils.sumByColumnName(curtPurData, 'FTaxAmount'),
     statFertRes: statFert(curtPurData),
-    sumAccCurtQty: sumByColumnName(curtPurAccData, 'FBaseQty'),
-    sumAccCurtAmount: sumByColumnName(curtPurAccData, 'FTaxAmount'),
-    sumAccLastQty: sumByColumnName(lastPurAccData, 'FBaseQty'),
-    sumAccLastAmount: sumByColumnName(lastPurAccData, 'FTaxAmount'),
+    sumAccCurtQty: utils.sumByColumnName(curtPurAccData, 'FBaseQty'),
+    sumAccCurtAmount: utils.sumByColumnName(curtPurAccData, 'FTaxAmount'),
+    sumAccLastQty: utils.sumByColumnName(lastPurAccData, 'FBaseQty'),
+    sumAccLastAmount: utils.sumByColumnName(lastPurAccData, 'FTaxAmount'),
     statDetails: statDetails(curtData,function(v) { return v.FBrandCarbaMind != '非尿素' },function(item) {return item.FMaterialNumber})
   };
 

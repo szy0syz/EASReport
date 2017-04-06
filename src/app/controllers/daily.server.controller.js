@@ -1,4 +1,4 @@
-let DailyLogic = require('../logic/daily.server.logic');
+let DailyLogic = require('../logics/daily.server.logic');
 
 module.exports = {
   get: function(req, res, next) {
