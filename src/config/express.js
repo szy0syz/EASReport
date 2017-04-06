@@ -1,6 +1,8 @@
 const express    = require('express');
 const bodyParser = require('body-parser');
 const exphbs     = require('express-handlebars'); 
+const winston    = require('winston');
+const exWinston  = require('express-winston');
 
 module.exports = function() {
   console.log('init express...');
@@ -15,6 +17,17 @@ module.exports = function() {
   //加载路由...
   require('../app/routes/daily.server.route')(app);
   
+  app.use(expressWinston.errorLogger({
+  transports: [
+    new winston.transports.Console({
+      json: true,
+      colorize: true
+    }),
+    new winston.transports.File({
+      filename: 'logs/error.log'
+    })]
+  }));
+
   //处理404
   app.use(function(req, res, next) {
   try {
