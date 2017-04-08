@@ -20,3 +20,8 @@
 - coding上的repo终于同步到github上了，用到了一个命令：`git pull origin master ----allow-unrelated-histories`
 - 新建了utils模块名，将公用的静态方法全部从logic中提取出来，方便以后复用
 - 加入了winston的express中间件，方便以后在pm2上线时记录错误
+
+2017-04-08:
+
+- 现在已经把打印功能彻底从逻辑中分离出来
+- github提交老是出问题？
