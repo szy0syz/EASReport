@@ -29,7 +29,7 @@ module.exports = {
     arrData = arrData.reduce((acc, val) => {
     acc.push({
       name: val.key,
-      sum: utils.sumByColumnName(val.data, options.colName)
+      sum: this.sumByColumnName(val.data, options.colName)
     })
     return acc;
     }, []);

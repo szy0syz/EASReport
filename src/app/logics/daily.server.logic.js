@@ -170,7 +170,7 @@ function statInventory(arrData, options) {
   let arrDataOri = arrData.slice(); //复制数组,已经是新数组,引用已变.
 
   //----求公司的库存化肥数量
-  statRes.sumFertQty = sumByColumnName(arrData, 'FInventoryEndQty').toFixed(1);
+  statRes.sumFertQty = utils.sumByColumnName(arrData, 'FInventoryEndQty').toFixed(1);
 
   //----------求五大分公司化肥库存数量数组
   arrData = [];
@@ -186,7 +186,7 @@ function statInventory(arrData, options) {
   })
 
   //----------求五大分公司化肥库存数量数组
-  statRes.sumFertSubBranchQty = sumByColumnName(statRes.sumFertSubBranchDetailQty, 'sum').toFixed(1);
+  statRes.sumFertSubBranchQty = utils.sumByColumnName(statRes.sumFertSubBranchDetailQty, 'sum').toFixed(1);
   //----------
 
   //----------求公司尿素库存数量数组
@@ -204,7 +204,7 @@ function statInventory(arrData, options) {
   //----------
 
   //----求五大分公司的库存尿素数量
-  statRes.sumUreaSubBranchQty = sumByColumnName(statRes.sumUreaSubBranchDetailQty, 'sum').toFixed(1);
+  statRes.sumUreaSubBranchQty = utils.sumByColumnName(statRes.sumUreaSubBranchDetailQty, 'sum').toFixed(1);
 
   //求五大分公司库存尿素物料明细数组, 云化2767吨，解化2吨，川化2吨，美丰3363吨，湖光7.......
   arrData = [];
@@ -244,7 +244,7 @@ function statInventory(arrData, options) {
     },
     colName: 'FInventoryEndQty'
   })
-  statRes.sumOtherFertSubBranchQty = sumByColumnName(statRes.sumOtherFertSubDetailQty, 'sum');
+  statRes.sumOtherFertSubBranchQty = utils.sumByColumnName(statRes.sumOtherFertSubDetailQty, 'sum');
 
   //---------------求进出口部库存化肥明细---------------------
   arrData = [];
@@ -258,7 +258,7 @@ function statInventory(arrData, options) {
                       },
                       colName: 'FInventoryEndQty'
                     });
-  statRes.jckSumFertQty = sumByColumnName(statRes.jckSumFertDetailQty, 'sum').toFixed(1);
+  statRes.jckSumFertQty = utils.sumByColumnName(statRes.jckSumFertDetailQty, 'sum').toFixed(1);
   //arrJCKDetail.map((item) =>  {return Number(item.sum).toFixed(1)});
   //--------------------------------------------------------
 
@@ -271,90 +271,7 @@ function statInventory(arrData, options) {
       },[]).join();
     }
   });
-
   return statRes;
-}
-
-////////////////////////////////////////////////
-const decimalDigits = config.decimalDigits = 0;
-////
-function printDetailsSummary(arrData) {  //数组要用reduce 一定要把空的剔除！
-  let sumDetailsReport;
-  if(arrData) {
-    sumDetailsReport = arrData
-                          .reduce((acc, val) => {
-                              acc.push(val.name + '['+ val.model +']' + val.sumQty.toFixed(decimalDigits) + "吨,单价" + (val.sumAmount / val.sumQty).toFixed(0));                       
-                            return acc;
-                          }, [])
-                          .join(','); //以逗号相连
-  }
-  return sumDetailsReport;
-}
-
-////
-function printSaleSummary(statRes, startDate) {
-  var sumFert = statRes
-    .statFertRes.filter((item) => { return item.sumQty != 0 })
-    .reduce((acc, val) => {
-      if(val.name == "尿素") {
-        acc.push(val.name + val.sumQty.toFixed(decimalDigits) + '吨' + "(" + printDetailsSummary(val.details) + ")");
-      } else { //这里只为“尿素”分类打印明细
-        acc.push(val.name + val.sumQty.toFixed(decimalDigits) + '吨');
-      }        
-      return acc;
-    }, [])
-    .join(',');
-  var strSaleSummary = "销售：化肥总售出" + statRes.sumCurtQty.toFixed(decimalDigits) + "吨，" + (statRes.sumCurtAmount / 10000).toFixed(decimalDigits) + "万元。" +
-      sumFert + "。" + startDate.split('-')[0] + "年累计销售" + statRes.sumAccCurtQty.toFixed(2) + "吨，同比增长" + ((statRes.sumAccCurtQty / statRes.sumAccLastQty) * 100).toFixed() + "%；累计销额" + (statRes.sumAccCurtAmount / 10000).toFixed(decimalDigits) + "万元，同比增长" + ((statRes.sumAccCurtAmount / statRes.sumAccLastAmount) * 100).toFixed() + "%（以销售出库单统计）。";
-  return strSaleSummary;
-}
-
-function printPurSummary(statRes, startDate) {
-  let sumFert = statRes
-    .statFertRes.filter((item) => { return item.sumQty != 0 }) 
-    .reduce((acc, val) => {
-      // if(val.name == "尿素") {
-      //   acc.push(val.name + val.sumQty.toFixed(decimalDigits) + '吨' + "(" + printDetailsSummary(val.details) + ")");
-      // } else { //这里只为“尿素”分类打印明细
-      //   acc.push(val.name + val.sumQty.toFixed(decimalDigits) + '吨');
-      // }
-      //所有物料都明细:尿素22吨（湖光尿素22吨，单价1700元）
-      //acc.push(val.name + val.sumQty.toFixed(decimalDigits) + '吨' + "(" + printDetailsSummary(val.details) + ")");
-      //只打印所有物料,不再打印大类合计了。
-      acc.push(printDetailsSummary(val.details))
-      return acc;
-    }, [])
-    .join(',');
-  let strSaleSummary = "购进：化肥总购入" + statRes.sumCurtQty.toFixed(decimalDigits) + "吨，" + (statRes.sumCurtAmount / 10000).toFixed(decimalDigits) + "万元。" +
-      sumFert + "。" + startDate.split('-')[0] + "年累计购入" + statRes.sumAccCurtQty.toFixed(decimalDigits) + "吨，同比增长" + ((statRes.sumAccCurtQty / statRes.sumAccLastQty) * 100).toFixed() + "%；累计购额" + (statRes.sumAccCurtAmount / 10000).toFixed(decimalDigits) + "万元，同比增长" + ((statRes.sumAccCurtAmount / statRes.sumAccLastAmount) * 100).toFixed() + "%（以采购入库单统计）。";
-  return strSaleSummary;
-}
-
-function printInvtSummary(statRes, endDate) {
-  let fert = '化肥总库存'+ statRes.sumFertQty.toFixed(decimalDigits) +'吨（其中'
-    + statRes.summaryFert.reduce((acc, val) => {acc.push(val.key + val.sumQty.toFixed(decimalDigits) + "吨"); return acc;}, []).join(',')
-    + ')， '
-    + '尿素'+ statRes.sumUreaQty.toFixed(decimalDigits) +'吨（其中'
-    + statRes.summartUrea.reduce((acc, val) => {acc.push(val.key + val.sumQty.toFixed(decimalDigits) + "吨"); return acc;}, []).join(',')
-    + ')， '
-    + '其中'
-    + statRes.detailUrea.reduce((acc, val) => {acc.push(val.key + val.sumQty.toFixed(decimalDigits) + "吨"); return acc;}, []).join(',')
-    + ')， '
-    + statRes.detailFert.reduce((acc, val) => {
-      if(val.data.length == 1) acc.push(val.key + val.data[0].sum.toFixed(decimalDigits) + '吨');
-      else {
-        acc.push(val.key + utils.sumByColumnName(val.data, 'sum').toFixed(decimalDigits) + '吨' + '(' + val.data.reduce((a, v) => {a.push(v.name + v.sum.toFixed(decimalDigits));return a;}, []).join(',') + ')');
-      }
-      return acc;
-    },[]).join(',')
-    + '，'
-    + '其他肥' + utils.sumByColumnName(statRes.detailOtherFert, 'sum').toFixed(0) + '吨（'
-    + statRes.detailOtherFert.reduce((acc, val) => {acc.push(val.name + val.sum + '吨');return acc;},[]).join(',')
-    + ')。 ';
-
-    //const test = dailyTemplate(statRes);
-
-    return fert;
 }
 
 module.exports = function(startDate) {
@@ -413,7 +330,7 @@ module.exports = function(startDate) {
     replacements: {
       FBizDateStart: Moment(strDateStart).month(0).date(1).format('YYYY-MM-DD'), //set month=1
       FBizDateEnd: strDateEnd
-    }
+    } 
   });
 
   var queryPurInLastAcc = sequelize.query(sqlCommand.purIn, {
@@ -432,36 +349,39 @@ module.exports = function(startDate) {
   });
 
   Promise.join(query, queryCurtAcc, queryLastAcc, queryPurIn, queryPurInCurtAcc, queryPurInLastAcc, queryInventory, function (curtData, curtAccData, lastAccData, curtPurData, curtPurAccData, lastPurAccData, invtData) {
-  var statSaleRes = {
-    sumCurtQty: utils.sumByColumnName(curtData, 'FBaseQty'),
-    sumCurtAmount: utils.sumByColumnName(curtData, 'FAmount'),
-    statFertRes: statFert(curtData),
-    sumAccCurtQty: utils.sumByColumnName(curtAccData, 'FBaseQty'),
-    sumAccCurtAmount: utils.sumByColumnName(curtAccData, 'FAmount'),
-    sumAccLastQty: utils.sumByColumnName(lastAccData, 'FBaseQty'),
-    sumAccLastAmount: utils.sumByColumnName(lastAccData, 'FAmount'),
-    statDetails: statDetails(curtData,function(v) { return v.FBrandCarbaMind != '非尿素' },function(item) {return item.FMaterialNumber})
-  };
-  var statPurRes = {
-    sumCurtQty: utils.sumByColumnName(curtPurData, 'FBaseQty'),
-    sumCurtAmount: utils.sumByColumnName(curtPurData, 'FTaxAmount'),
-    statFertRes: statFert(curtPurData),
-    sumAccCurtQty: utils.sumByColumnName(curtPurAccData, 'FBaseQty'),
-    sumAccCurtAmount: utils.sumByColumnName(curtPurAccData, 'FTaxAmount'),
-    sumAccLastQty: utils.sumByColumnName(lastPurAccData, 'FBaseQty'),
-    sumAccLastAmount: utils.sumByColumnName(lastPurAccData, 'FTaxAmount'),
-    statDetails: statDetails(curtData,function(v) { return v.FBrandCarbaMind != '非尿素' },function(item) {return item.FMaterialNumber})
-  };
+    const statSaleRes = {
+      sumCurtQty: utils.sumByColumnName(curtData, 'FBaseQty'),
+      sumCurtAmount: utils.sumByColumnName(curtData, 'FAmount'),
+      statFertRes: statFert(curtData),
+      sumAccCurtQty: utils.sumByColumnName(curtAccData, 'FBaseQty'),
+      sumAccCurtAmount: utils.sumByColumnName(curtAccData, 'FAmount'),
+      sumAccLastQty: utils.sumByColumnName(lastAccData, 'FBaseQty'),
+      sumAccLastAmount: utils.sumByColumnName(lastAccData, 'FAmount'),
+      statDetails: statDetails(curtData,function(v) { return v.FBrandCarbaMind != '非尿素' },function(item) {return item.FMaterialNumber})
+    };
+    const statPurRes = {
+      sumCurtQty: utils.sumByColumnName(curtPurData, 'FBaseQty'),
+      sumCurtAmount: utils.sumByColumnName(curtPurData, 'FTaxAmount'),
+      statFertRes: statFert(curtPurData),
+      sumAccCurtQty: utils.sumByColumnName(curtPurAccData, 'FBaseQty'),
+      sumAccCurtAmount: utils.sumByColumnName(curtPurAccData, 'FTaxAmount'),
+      sumAccLastQty: utils.sumByColumnName(lastPurAccData, 'FBaseQty'),
+      sumAccLastAmount: utils.sumByColumnName(lastPurAccData, 'FTaxAmount'),
+      statDetails: statDetails(curtData,function(v) { return v.FBrandCarbaMind != '非尿素' },function(item) {return item.FMaterialNumber})
+    };
+    
+    const invtRes = statInventory(invtData);
 
-  const saleRes = printSaleSummary(statSaleRes, startDate) + '\n\n';
-  const purRes = printPurSummary(statPurRes, startDate) + '\n\n';
-  
-  const invtRes0 = statInventory(invtData);
-  const invtRes = dailyTemplate({invt: invtRes0})
+    const report = dailyTemplate({
+      invt: invtRes,
+      sale: statSaleRes,
+      pur: statPurRes,
+      date: startDate
+    });
 
-  fs.writeFile('./public/'+ startDate +'.txt', saleRes + purRes + invtRes, 'utf8', function() { 
-    console.log('写入完成。');
-  });
+    fs.writeFile('./public/'+ startDate +'.txt', report, 'utf8', function() { 
+      console.log('写入完成。');
+    });
 
   });
 }

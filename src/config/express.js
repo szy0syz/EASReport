@@ -17,24 +17,26 @@ module.exports = function() {
   //加载路由...
   require('../app/routes/daily.server.route')(app);
   
+  //记录错误堆栈信息到日志文件
   app.use(exWinston.errorLogger({
-  transports: [
-    new winston.transports.Console({
-      json: true,
-      colorize: true
-    }),
-    new winston.transports.File({
-      filename: 'logs/error.log'
-    })]
+    transports: [
+      new winston.transports.Console({
+        json: true,
+        colorize: true
+      }),
+      new winston.transports.File({
+        filename: 'logs/error.log'
+      })
+    ]
   }));
 
-  //处理404
-  app.use(function(req, res, next) {
-  try {
-    res.status(404).send('404 - 未找到');
-  } catch(e) {
-    console.error('404 set header agter sent');
-  }
+    //处理404
+    app.use(function(req, res, next) {
+    try {
+      res.status(404).send('404 - 未找到');
+    } catch(e) {
+      console.error('404 set header agter sent');
+    }
   });
 
   //处理500
