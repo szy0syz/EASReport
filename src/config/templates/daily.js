@@ -15,7 +15,16 @@ function printDetailsSummary(arrData) {  //数组要用reduce 一定要把空的
   return sumDetailsReport;
 }
 
-////
+//采购和销售报表的statRes对象
+// {
+//   name:'高含量',
+//   sumQty: 120,
+//   sumAmount: 400320.00,
+//   detail: [...{key: '火炬牌', name:'火炬牌复合肥', model: '15-15-15,50kg', sumQty: 120, sumAmount: 258000, type0:'化肥', type1: '复合肥', type2: '火炬牌', type3: '火炬牌', data:[metadata]}...],
+//   data: [...metadata...]
+// }
+
+// 销售报表打印
 function printSaleSummary(statRes, startDate) {
   var sumFert = statRes
     .statFertRes.filter((item) => { return item.sumQty != 0 })
@@ -33,6 +42,7 @@ function printSaleSummary(statRes, startDate) {
   return strSaleSummary;
 }
 
+// 采购报表打印
 function printPurSummary(statRes, startDate) {
   let sumFert = statRes
     .statFertRes.filter((item) => { return item.sumQty != 0 }) 

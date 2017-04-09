@@ -2,17 +2,14 @@ let DailyLogic = require('../logics/daily.server.logic');
 
 module.exports = {
   get: function(req, res, next) {
-    if(!req.query.targetDate) return next(new Error('params is undefined'));
-    //执行算法对象生成结果文件
-    DailyLogic(req.query.targetDate);
-    res.json({success: true});
+    res.render('daily');
   },
   post: function(req, res, next) {
     //此方法主要用来生成日报表结果对象
-    if(!req.params.targetDate) return next(new Error('params is undefined'));
+    if(!req.body.targetDate) return next(new Error('params is undefined'));
     //执行算法对象生成结果文件
     DailyLogic(req.body.targetDate);
-    res.json({success: true});
+    res.render('success', {title: '提交成功', msg: `${req.body.targetDate}日报正在制作中...\n请勿重复提交!!!`});
 
   },
   getReportByDate: function(req, res, next, date) {
