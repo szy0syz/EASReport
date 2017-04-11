@@ -274,6 +274,7 @@ function statInventory(arrData, options) {
   return statRes;
 }
 
+/////////////////////////////////////////
 module.exports = function(startDate) {
   let bizDateStart = Moment(startDate);
   let bizDateEnd = Moment(startDate);

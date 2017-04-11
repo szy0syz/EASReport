@@ -12,9 +12,11 @@ module.exports = {
     res.render('success', {title: '提交成功', msg: `${req.body.targetDate}日报正在制作中...\n请勿重复提交!!!`});
 
   },
-  getReportByDate: function(req, res, next, date) {
-    if(!date) return next(new Error('params is undefined'));
+  getReportByDate: function(req, res, next, val) {
+    if(!val) return next(new Error('params is undefined'));
+    console.log('in params;');
     //获取这边前端直接生成吧
+    return next();
   },
   getReport: function(req, res, next) {
 

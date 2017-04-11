@@ -38,7 +38,7 @@ function printSaleSummary(statRes, startDate) {
     }, [])
     .join(',');
   var strSaleSummary = "销售：化肥总售出" + statRes.sumCurtQty.toFixed(decimalDigits) + "吨，" + (statRes.sumCurtAmount / 10000).toFixed(decimalDigits) + "万元。" +
-      sumFert + "。" + startDate.split('-')[0] + "年累计销售" + statRes.sumAccCurtQty.toFixed(2) + "吨，同比增长" + ((statRes.sumAccCurtQty / statRes.sumAccLastQty) * 100).toFixed() + "%；累计销额" + (statRes.sumAccCurtAmount / 10000).toFixed(decimalDigits) + "万元，同比增长" + ((statRes.sumAccCurtAmount / statRes.sumAccLastAmount) * 100).toFixed() + "%（以销售出库单统计）。";
+      sumFert + "。" + startDate.split('-')[0] + "年累计销售" + statRes.sumAccCurtQty.toFixed(2) + "吨，同比增长" + (((statRes.sumAccCurtQty - statRes.sumAccLastQty) / statRes.sumAccLastQty) * 100).toFixed() + "%；累计销额" + (statRes.sumAccCurtAmount / 10000).toFixed(decimalDigits) + "万元，同比增长" + (((statRes.sumAccCurtAmount - statRes.sumAccLastAmount) / statRes.sumAccLastAmount) * 100).toFixed() + "%（以销售出库单统计）。";
   return strSaleSummary;
 }
 
@@ -91,7 +91,7 @@ module.exports = function(res) {
     // `;
 
     let purReport = printPurSummary(purObj, startDate);
-    let saleRepot = printSaleSummary(purObj, startDate);
+    let saleRepot = printSaleSummary(saleObj, startDate);
     
     //invtObj.sumFertSubBranchDetailQty = 滇中11792吨，楚雄13334吨，开远12124吨，大理18283吨，滇东北4644吨
     //invtObj.sumUreaSubBranchDetailQty = 滇中6859吨，楚雄7000吨，开远9525吨，大理13647吨，滇东北2621吨
