@@ -170,7 +170,7 @@ function statInventory(arrData, options) {
   let arrDataOri = arrData.slice(); //复制数组,已经是新数组,引用已变.
 
   //----求公司的库存化肥数量
-  statRes.sumFertQty = utils.sumByColumnName(arrData, 'FInventoryEndQty').toFixed(1);
+  statRes.sumFertQty = utils.sumByColumnName(arrData, 'FInventoryEndQty').toFixed(config.decimalDigitsInvt);
 
   //----------求五大分公司化肥库存数量数组
   arrData = [];
@@ -186,7 +186,7 @@ function statInventory(arrData, options) {
   })
 
   //----------求五大分公司化肥库存数量数组
-  statRes.sumFertSubBranchQty = utils.sumByColumnName(statRes.sumFertSubBranchDetailQty, 'sum').toFixed(1);
+  statRes.sumFertSubBranchQty = utils.sumByColumnName(statRes.sumFertSubBranchDetailQty, 'sum').toFixed(config.decimalDigitsInvt);
   //----------
 
   //----------求公司尿素库存数量数组
@@ -204,7 +204,7 @@ function statInventory(arrData, options) {
   //----------
 
   //----求五大分公司的库存尿素数量
-  statRes.sumUreaSubBranchQty = utils.sumByColumnName(statRes.sumUreaSubBranchDetailQty, 'sum').toFixed(1);
+  statRes.sumUreaSubBranchQty = utils.sumByColumnName(statRes.sumUreaSubBranchDetailQty, 'sum').toFixed(config.decimalDigitsInvt);
 
   //求五大分公司库存尿素物料明细数组, 云化2767吨，解化2吨，川化2吨，美丰3363吨，湖光7.......
   arrData = [];
@@ -258,7 +258,7 @@ function statInventory(arrData, options) {
                       },
                       colName: 'FInventoryEndQty'
                     });
-  statRes.jckSumFertQty = utils.sumByColumnName(statRes.jckSumFertDetailQty, 'sum').toFixed(1);
+  statRes.jckSumFertQty = utils.sumByColumnName(statRes.jckSumFertDetailQty, 'sum').toFixed(config.decimalDigitsInvt);
   //arrJCKDetail.map((item) =>  {return Number(item.sum).toFixed(1)});
   //--------------------------------------------------------
 
@@ -266,7 +266,7 @@ function statInventory(arrData, options) {
   Object.keys(invtRes1).forEach((k,i) =>  {
     if(Object.prototype.toString.call(invtRes1[k]) === '[object Array]') {
       invtRes1[k] = invtRes1[k].reduce((acc, val) => {
-        acc.push(`${val['name']}${val['sum'].toFixed(1)}吨`);
+        acc.push(`${val['name']}${val['sum'].toFixed(config.decimalDigitsInvt)}吨`);
         return acc;
       },[]).join();
     }
