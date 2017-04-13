@@ -1,6 +1,11 @@
-# EASReport
-
-提供web服务，生成关于金蝶EAS各项文字或图形报表。
+<div align="center">
+      <img src="http://ofx24fene.bkt.clouddn.com//img/2017/Kingdee-EAS.jpg">
+  <h1>EASReport</h1>
+  <p>  
+      这是一个 nodejs + express + sequelize … 实现的 WEB项目  <br/>
+      它可以一键式生成EAS各项文字或图形报表
+  <p>
+</div>
 
 ## 开发背景
 
