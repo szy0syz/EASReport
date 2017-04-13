@@ -8,6 +8,7 @@ const loadModels = require('../../config/loadModels');
 const fs = require('fs')
 const config = require('../../config/config');
 const utils = require('../utils/util');
+const jsonrw = require('../utils/jsonRW');
 let dailyInvtModel = require('../models/daily.invt.model');
 let dailyTemplate = require('../../config/templates/daily');
 
@@ -371,14 +372,21 @@ module.exports = function(startDate) {
       statDetails: statDetails(curtData,function(v) { return v.FBrandCarbaMind != '非尿素' },function(item) {return item.FMaterialNumber})
     };
     
-    const invtRes = statInventory(invtData);
+    const statInvtRes = statInventory(invtData);
 
-    const report = dailyTemplate({
-      invt: invtRes,
-      sale: statSaleRes,
+    const dailyObj = {
+      date: startDate,
       pur: statPurRes,
-      date: startDate
-    });
+      sale: statSaleRes,
+      invt: statInvtRes,
+    };
+
+    const report = dailyTemplate(dailyObj);
+    
+    jsonrw.writeJSON(config.pathDailyJson + startDate.toString().slice(0,4) + '/' + startDate + '.json', dailyObj);
+
+    // let obj = jsonrw.readJSON(config.pathDailyJson + startDate.toString().slice(0,4) + '/' + startDate + '.json');
+    // console.dir(obj.sale);
 
     fs.writeFile('./public/'+ startDate +'.txt', report, 'utf8', function() { 
       console.log('写入完成。');
