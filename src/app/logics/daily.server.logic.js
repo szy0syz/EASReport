@@ -350,28 +350,23 @@ module.exports = function(startDate) {
     replacements: { FBizDateEnd:  isEndMonth ? Moment(strDateEnd).add(1, 'M').date(1).format('YYYY-MM-DD') : strDateEnd }
   });
 
-  Promise.join(query, queryCurtAcc, queryLastAcc, queryPurIn, queryPurInCurtAcc, queryPurInLastAcc, queryInventory, function (curtData, curtAccData, lastAccData, curtPurData, curtPurAccData, lastPurAccData, invtData) {
+  Promise.join(query, queryCurtAcc, queryLastAcc, queryPurIn, queryInventory, function (curtData, curtAccData, lastAccData, curtPurData, invtData) {
     const statSaleRes = {
       sumCurtQty: utils.sumByColumnName(curtData, 'FBaseQty'),
       sumCurtAmount: utils.sumByColumnName(curtData, 'FAmount'),
       statFertRes: statFert(curtData),
-      sumAccCurtQty: utils.sumByColumnName(curtAccData, 'FBaseQty'),
-      sumAccCurtAmount: utils.sumByColumnName(curtAccData, 'FAmount'),
-      sumAccLastQty: utils.sumByColumnName(lastAccData, 'FBaseQty'),
-      sumAccLastAmount: utils.sumByColumnName(lastAccData, 'FAmount'),
+      sumAccCurtQty: utils.sumByColumnName(curtAccData, 'FBaseQty'),  //本年度累计数量
+      sumAccCurtAmount: utils.sumByColumnName(curtAccData, 'FAmount'),//本年度累计金额
+      sumAccLastQty: utils.sumByColumnName(lastAccData, 'FBaseQty'),  //去年同期累计数量
+      sumAccLastAmount: utils.sumByColumnName(lastAccData, 'FAmount'),//去年统计累计金额
       statDetails: statDetails(curtData,function(v) { return v.FBrandCarbaMind != '非尿素' },function(item) {return item.FMaterialNumber})
     };
     const statPurRes = {
       sumCurtQty: utils.sumByColumnName(curtPurData, 'FBaseQty'),
       sumCurtAmount: utils.sumByColumnName(curtPurData, 'FTaxAmount'),
       statFertRes: statFert(curtPurData),
-      sumAccCurtQty: utils.sumByColumnName(curtPurAccData, 'FBaseQty'),
-      sumAccCurtAmount: utils.sumByColumnName(curtPurAccData, 'FTaxAmount'),
-      sumAccLastQty: utils.sumByColumnName(lastPurAccData, 'FBaseQty'),
-      sumAccLastAmount: utils.sumByColumnName(lastPurAccData, 'FTaxAmount'),
       statDetails: statDetails(curtData,function(v) { return v.FBrandCarbaMind != '非尿素' },function(item) {return item.FMaterialNumber})
     };
-    
     const statInvtRes = statInventory(invtData);
 
     const dailyObj = {

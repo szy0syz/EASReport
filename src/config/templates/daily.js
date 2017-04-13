@@ -62,7 +62,7 @@ function printPurSummary(statRes, startDate) {
     }, [])
     .join(',');
   let strSaleSummary = "一、购进：化肥总购入" + statRes.sumCurtQty.toFixed(decimalDigits) + "吨，" + (statRes.sumCurtAmount / 10000).toFixed(decimalDigits) + "万元。" +
-      "其中" + sumFert + "。" + startDate.toString().slice(0,4) + "年累计购入" + statRes.sumAccCurtQty.toFixed(decimalDigits) + "吨，同比增长" + ((statRes.sumAccCurtQty / statRes.sumAccLastQty) * 100).toFixed() + "%；累计购额" + (statRes.sumAccCurtAmount / 10000).toFixed(decimalDigits) + "万元，同比增长" + ((statRes.sumAccCurtAmount / statRes.sumAccLastAmount) * 100).toFixed() + "%（以采购入库单统计）。";
+      "其中" + sumFert + "。";
   return strSaleSummary;
 }
 
