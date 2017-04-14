@@ -36,10 +36,18 @@ nodejs + express + sequelize + sql + bluebird + handlerbars + bootstrap
 
 ## 安装
 
-`git clone https://github.com/szy0syz/EASReport.git`
+```bash
+git clone https://github.com/szy0syz/EASReport.git
 
-`npm i`
+npm install
+```
 
 ## 使用
 
-`npm run start`
+```bash
+npm run start
+```
+
+## 总结
+
+目前改项目仅解决公司内部自身需求，不通用，后期将分离核心算法，仿Tableau功能用JavaScript实现。
