@@ -2,7 +2,7 @@
       <img src="http://ofx24fene.bkt.clouddn.com//img/2017/Kingdee-EAS.jpg">
   <h1>EASReport</h1>
   <p>  
-      这是一个 nodejs + express + sequelize … 实现的 WEB项目  <br/>
+      这是一个 nodejs + express + sequelize … 实现的 个人项目  <br/>
       它可以一键式生成EAS各项文字或图形报表
   <p>
 </div>
@@ -33,3 +33,13 @@ nodejs + express + sequelize + sql + bluebird + handlerbars + bootstrap
 - [x] v2：核心算法分离封装 -- 完成
 - [x] v2：将报表对象读写JSON，方便前端 -- 完成
 - [ ] v3：加入babel，使用ES6/7
+
+## 安装
+
+`git clone https://github.com/szy0syz/EASReport.git`
+
+`npm i`
+
+## 使用
+
+`npm run start`
