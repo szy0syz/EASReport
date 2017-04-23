@@ -89,6 +89,16 @@ function statFert(arrData) {
     val.details = statDetails(val.data, (item) => {return item.FBrandFertilizer == val.name}, (item) => { return item.FMaterialType3})
   });
 
+  //为统计对象中尿素结果排序！
+  //待处理的数组藏在外层数组中，先循环找“尿素”吧。
+  brandF.forEach((val) => {
+    if(val.name == '尿素') {
+      val.details.sort((a,b) => parseInt(a.number)-parseInt(b.number));
+      console.log(val.details)
+    }
+  });
+  
+
   brandF.push({
     name: '复合肥',
     sumQty: brandF[13].sumQty + brandF[14].sumQty,
@@ -114,6 +124,7 @@ function statDetails(arrData, filter, group) {
         key: value.key,
         name: value.data[0].FMaterial, //因为这里经过Object.keys,所以肯定是有值.
         model: value.data[0].FMaterialModel,
+        number: value.data[0].FMaterialNumber, //FNumber是销售出库单单号！！看sql到底取哪个字段。
         type0: value.data[0].FMaterialType0,
         type1: value.data[0].FMaterialType1,
         type2: value.data[0].FMaterialType2,
@@ -245,7 +256,7 @@ function statInventory(arrData, options) {
     },
     colName: 'FInventoryEndQty'
   })
-  statRes.sumOtherFertSubBranchQty = utils.sumByColumnName(statRes.sumOtherFertSubDetailQty, 'sum');
+  statRes.sumOtherFertSubBranchQty = utils.sumByColumnName(statRes.sumOtherFertSubDetailQty, 'sum').toFixed(config.decimalDigitsInvt);
 
   //---------------求进出口部库存化肥明细---------------------
   arrData = [];

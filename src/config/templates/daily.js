@@ -32,7 +32,7 @@ function printSaleSummary(statRes, startDate) {
     .statFertRes.filter((item) => { return item.sumQty != 0 })
     .reduce((acc, val) => {
       if(val.name == "尿素") {
-        acc.push(val.name + val.sumQty.toFixed(decimalDigits) + '吨' + "(" + printDetailsSummary(val.details) + ")");
+        acc.push(val.name + val.sumQty.toFixed(decimalDigits) + '吨' + "(" + printDetailsSummary(val.details) + ")"); //val.details存明细
       } else { //这里只为“尿素”分类打印明细
         acc.push(val.name + val.sumQty.toFixed(decimalDigits) + '吨');
       }        
