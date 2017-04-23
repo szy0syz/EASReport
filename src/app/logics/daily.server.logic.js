@@ -94,7 +94,6 @@ function statFert(arrData) {
   brandF.forEach((val) => {
     if(val.name == '尿素') {
       val.details.sort((a,b) => parseInt(a.number)-parseInt(b.number));
-      console.log(val.details)
     }
   });
   
@@ -124,7 +123,7 @@ function statDetails(arrData, filter, group) {
         key: value.key,
         name: value.data[0].FMaterial, //因为这里经过Object.keys,所以肯定是有值.
         model: value.data[0].FMaterialModel,
-        number: value.data[0].FMaterialNumber, //FNumber是销售出库单单号！！看sql到底取哪个字段。
+        number: value.data[0].FMaterialNumber, //加入物料编码，排序用
         type0: value.data[0].FMaterialType0,
         type1: value.data[0].FMaterialType1,
         type2: value.data[0].FMaterialType2,

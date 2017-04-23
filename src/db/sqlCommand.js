@@ -26,7 +26,7 @@ function Command (targetDate) {
                   cg.type1 as FCustomerType1, cg.type2 as FCustomerType2,  
                   mg.FNumber as FMaterialNumber, mg.FName_l2 as FMaterial, mg.FModel AS FMaterialModel, mg.FDisplayName_L2 as FMaterialDisplayName,  
                   mg.type0 as FMaterialType0, mg.type1 as FMaterialType1, mg.type2 as FMaterialType2, mg.type3 as FMaterialType3, 
-                  mgp.FMaterialGroupStandard AS FBrandFertilizer, mgp1.FMaterialGroupStandard AS FBrandCarbaMind 
+                  mgp.FMaterialGroupStandard AS FBrandFertilizer, mgp.FFertGroupID as FFertGroupID, mgp1.FMaterialGroupStandard AS FBrandCarbaMind 
       from T_IM_SaleIssueEntry as se 
       left join T_IM_SaleIssueBill as sb on se.FParentID = sb.FID 
       left join T_BD_Customer as c on sb.FCustomerID = c.FID  
@@ -72,7 +72,7 @@ function Command (targetDate) {
             )     as mg on se.FMaterialID = mg.FID  
       LEFT JOIN 
             (  
-                        SELECT m.FID AS FMaterialID ,m. FNumber AS FNumber, m.FName_l2 AS FName, m.FModel AS FModel , mgs. FName_L2, mg.FName_L2 AS FMaterialGroupStandard  
+                        SELECT m.FID AS FMaterialID ,m. FNumber AS FNumber, m.FName_l2 AS FName, m.FModel AS FModel , mgs. FName_L2, mg.FName_L2 AS FMaterialGroupStandard, mg.FNumber AS FFertGroupID 
                         FROM dbo.T_BD_MaterialGroupDetial AS mgd  
                         INNER JOIN dbo. T_BD_Material AS m ON mgd.FMaterialID = m.FID  
                         INNER JOIN dbo. T_BD_MaterialGroup AS mg ON mgd.FMaterialGroupID = mg.FID  
@@ -100,7 +100,7 @@ function Command (targetDate) {
             s.FName_L2 AS FSupplier,
             mg.FName_l2 AS FMaterial, mg.FNumber AS FMaterialNumber, mg.FModel AS FMaterialModel, mg.FDisplayName_L2 as FMaterialDisplayName,
             mg.type0 as FMaterialType0, mg.type1 as FMaterialType1, mg.type2 as FMaterialType2, mg.type3 as FMaterialType3,
-            mgp.FMaterialGroupStandard AS FBrandFertilizer , mgp1.FMaterialGroupStandard AS FBrandCarbaMind 
+            mgp.FMaterialGroupStandard AS FBrandFertilizer, mgp.FFertGroupID as FFertGroupID, mgp1.FMaterialGroupStandard AS FBrandCarbaMind 
       FROM T_IM_PurInWarehsEntry AS pe 
       LEFT JOIN T_IM_PurInWarehsBill as pb ON pb.FID = pe.FParentID 
       LEFT JOIN T_BD_Supplier as s on pb.FSupplierID = s.FID 
@@ -116,7 +116,7 @@ function Command (targetDate) {
             )     as mg on pe.FMaterialID = mg.FID 
       LEFT JOIN 
                   (
-                        SELECT m.FID AS FMaterialID ,m. FNumber AS FNumber, m.FName_l2 AS FName, m.FModel AS FModel , mgs. FName_L2, mg.FName_L2 AS FMaterialGroupStandard 
+                        SELECT m.FID AS FMaterialID ,m. FNumber AS FNumber, m.FName_l2 AS FName, m.FModel AS FModel , mgs. FName_L2, mg.FName_L2 AS FMaterialGroupStandard , mg.FNumber AS FFertGroupID  
                         FROM dbo.T_BD_MaterialGroupDetial AS mgd 
                         INNER JOIN dbo.T_BD_Material AS m ON mgd.FMaterialID = m.FID 
                         INNER JOIN dbo.T_BD_MaterialGroup AS mg ON mgd.FMaterialGroupID = mg.FID 
