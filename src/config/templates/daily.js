@@ -25,7 +25,6 @@ function printDetailsSummary(arrData) {  //数组要用reduce 一定要把空的
 //   detail: [...{key: '火炬牌', name:'火炬牌复合肥', model: '15-15-15,50kg', sumQty: 120, sumAmount: 258000, type0:'化肥', type1: '复合肥', type2: '火炬牌', type3: '火炬牌', data:[metadata]}...],
 //   data: [...metadata...]
 // }
-
 // 销售报表打印
 function printSaleSummary(statRes, startDate) {
   var sumFert = statRes
@@ -70,7 +69,8 @@ module.exports = function(res) {
     let purObj = res.pur;
     let saleObj = res.sale;
     let invtObj = res.invt;
-    let startDate = res.date;
+    let startDate = res.startDate;
+    let endDate = res.endDate;
     //purObj对象格式：{
     //    sumFertQty:       0, //全公司化肥总购入数量
     //    sumFertAmount:    0, //全公司化肥总购入金额
@@ -104,6 +104,14 @@ module.exports = function(res) {
     //invtObj.sumOtherFertSubDetailQty = 纳若夏有机肥19吨，明月47吨，金满田32吨
     //invtObj.jckSumFertDetailQty = 尿素44吨，重钙21080吨，磷铵41108吨，磷酸984吨
     let invtReport = `三、库存：全公司化肥库存${invtObj.sumFertQty}吨。其中1、分公司库存${invtObj.sumFertSubBranchQty}吨（${invtObj.sumFertSubBranchDetailQty}），尿素${invtObj.sumUreaSubBranchQty}吨（${invtObj.sumUreaSubBranchDetailQty}顿，其中${invtObj.sumUreaSubBranchMaterialDetailQty}），${invtObj.sumFertSubBranchQtyEx}，其它${invtObj.sumOtherFertSubBranchQty}吨（${invtObj.sumOtherFertSubDetailQty}）。2、进出口部库存${invtObj.jckSumFertQty}吨（${invtObj.jckSumFertDetailQty}）。`;
-    const rHeader = `${startDate.toString().slice(0,4)}年${startDate.toString().slice(4,6)}月${startDate.toString().slice(6)}日化肥进销存：`;
+    
+    let rHeader = '';
+
+    if(startDate != endDate) {
+      rHeader = `${startDate.toString().slice(0,4)}年${startDate.toString().slice(4,6)}月${startDate.toString().slice(6)}至${endDate.toString().slice(0,4)}年${endDate.toString().slice(4,6)}月${endDate.toString().slice(6)}日化肥进销存：`;
+    } else {
+      rHeader = `${startDate.toString().slice(0,4)}年${startDate.toString().slice(4,6)}月${startDate.toString().slice(6)}日化肥进销存：`;
+    }
+    
     return rHeader+ '\n' + purReport + '\n' + saleRepot + '\n' + invtReport;
 }

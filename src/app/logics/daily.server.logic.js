@@ -286,9 +286,9 @@ function statInventory(arrData, options) {
 }
 
 /////////////////////////////////////////
-module.exports = function(startDate) {
+module.exports = function(startDate, endDate) {
   let bizDateStart = Moment(startDate);
-  let bizDateEnd = Moment(startDate);
+  let bizDateEnd = Moment(endDate);
   let day = Moment(startDate).date();
   let isEndMonth = day >= 26 && day <= 31 ? true : false;
   if (isEndMonth) {
@@ -380,7 +380,8 @@ module.exports = function(startDate) {
     const statInvtRes = statInventory(invtData);
 
     const dailyObj = {
-      date: startDate,
+      startDate: startDate,
+      endDate: endDate,
       pur: statPurRes,
       sale: statSaleRes,
       invt: statInvtRes,
@@ -388,12 +389,13 @@ module.exports = function(startDate) {
 
     const report = dailyTemplate(dailyObj);
     
-    jsonrw.writeJSON(config.pathDailyJson + startDate.toString().slice(0,4) + '/' + startDate + '.json', dailyObj);
+    //json 暂时不写
+    //jsonrw.writeJSON(config.pathDailyJson + startDate.toString().slice(0,4) + '/' + startDate + '.json', dailyObj);
 
     // let obj = jsonrw.readJSON(config.pathDailyJson + startDate.toString().slice(0,4) + '/' + startDate + '.json');
     // console.dir(obj.sale);
 
-    fs.writeFile('./public/'+ startDate +'.txt', report, 'utf8', function() { 
+    fs.writeFile('./public/'+ startDate + '_' + endDate +'.txt', report, 'utf8', function() { 
       console.log('写入完成。');
     });
 
