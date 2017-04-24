@@ -309,6 +309,15 @@ module.exports = function(startDate, endDate) {
     }
   });
 
+  var queryPurIn = sequelize.query(sqlCommand.purIn, {
+    type: sequelize.QueryTypes.SELECT,
+    model: PurInEntry,
+    replacements: {
+      FBizDateStart: strDateStart,
+      FBizDateEnd: strDateEnd
+    }
+  });
+
   var queryCurtAcc = sequelize.query(sqlCommand.saleOut, {
     type: sequelize.QueryTypes.SELECT,
     model: SaleIssueEntry,
@@ -327,32 +336,23 @@ module.exports = function(startDate, endDate) {
     }
   });
 
-  var queryPurIn = sequelize.query(sqlCommand.purIn, {
-    type: sequelize.QueryTypes.SELECT,
-    model: PurInEntry,
-    replacements: {
-      FBizDateStart: strDateStart,
-      FBizDateEnd: strDateEnd
-    }
-  });
+  // var queryPurInCurtAcc = sequelize.query(sqlCommand.purIn, {
+  //   type: sequelize.QueryTypes.SELECT,
+  //   model: PurInEntry,
+  //   replacements: {
+  //     FBizDateStart: Moment(strDateStart).month(0).date(1).format('YYYY-MM-DD'), //set month=1
+  //     FBizDateEnd: strDateEnd
+  //   } 
+  // });
 
-  var queryPurInCurtAcc = sequelize.query(sqlCommand.purIn, {
-    type: sequelize.QueryTypes.SELECT,
-    model: PurInEntry,
-    replacements: {
-      FBizDateStart: Moment(strDateStart).month(0).date(1).format('YYYY-MM-DD'), //set month=1
-      FBizDateEnd: strDateEnd
-    } 
-  });
-
-  var queryPurInLastAcc = sequelize.query(sqlCommand.purIn, {
-    type: sequelize.QueryTypes.SELECT,
-    model: PurInEntry,
-    replacements: {
-      FBizDateStart: Moment(strDateStart).add(-1, 'year').month(0).date(1).format('YYYY-MM-DD'), //set year-1, month=1
-      FBizDateEnd: Moment(strDateEnd).add(-1, 'year').format('YYYY-MM-DD')
-    }
-  });
+  // var queryPurInLastAcc = sequelize.query(sqlCommand.purIn, {
+  //   type: sequelize.QueryTypes.SELECT,
+  //   model: PurInEntry,
+  //   replacements: {
+  //     FBizDateStart: Moment(strDateStart).add(-1, 'year').month(0).date(1).format('YYYY-MM-DD'), //set year-1, month=1
+  //     FBizDateEnd: Moment(strDateEnd).add(-1, 'year').format('YYYY-MM-DD')
+  //   }
+  // });
 
   let queryInventory = sequelize.query(sqlCommand.Invt, {
     type: sequelize.QueryTypes.SELECT,
@@ -360,7 +360,7 @@ module.exports = function(startDate, endDate) {
     replacements: { FBizDateEnd:  isEndMonth ? Moment(strDateEnd).add(1, 'M').date(1).format('YYYY-MM-DD') : strDateEnd }
   });
 
-  Promise.join(query, queryCurtAcc, queryLastAcc, queryPurIn, queryInventory, function (curtData, curtAccData, lastAccData, curtPurData, invtData) {
+  Promise.join(query, queryCurtAcc, queryLastAcc, queryPurIn, queryInventory, function (curtData, curtAccData, lastAccData, purInData, invtData) {
     const statSaleRes = {
       sumCurtQty: utils.sumByColumnName(curtData, 'FBaseQty'),
       sumCurtAmount: utils.sumByColumnName(curtData, 'FAmount'),
@@ -371,11 +371,12 @@ module.exports = function(startDate, endDate) {
       sumAccLastAmount: utils.sumByColumnName(lastAccData, 'FAmount'),//去年统计累计金额
       statDetails: statDetails(curtData,function(v) { return v.FBrandCarbaMind != '非尿素' },function(item) {return item.FMaterialNumber})
     };
-    const statPurRes = {
-      sumCurtQty: utils.sumByColumnName(curtPurData, 'FBaseQty'),
-      sumCurtAmount: utils.sumByColumnName(curtPurData, 'FTaxAmount'),
-      statFertRes: statFert(curtPurData),
-      statDetails: statDetails(curtData,function(v) { return v.FBrandCarbaMind != '非尿素' },function(item) {return item.FMaterialNumber})
+
+    const statPurRes = { 
+      sumCurtQty: utils.sumByColumnName(purInData, 'FBaseQty'),
+      sumCurtAmount: utils.sumByColumnName(purInData, 'FTaxAmount'),
+      statFertRes: statFert(purInData),
+      statDetails: statDetails(purInData, function(v) { return v.FBrandCarbaMind != '非尿素' },function(item) {return item.FMaterialNumber})
     };
     const statInvtRes = statInventory(invtData);
 
@@ -391,9 +392,6 @@ module.exports = function(startDate, endDate) {
     
     //json 暂时不写
     //jsonrw.writeJSON(config.pathDailyJson + startDate.toString().slice(0,4) + '/' + startDate + '.json', dailyObj);
-
-    // let obj = jsonrw.readJSON(config.pathDailyJson + startDate.toString().slice(0,4) + '/' + startDate + '.json');
-    // console.dir(obj.sale);
 
     fs.writeFile('./public/'+ startDate + '_' + endDate +'.txt', report, 'utf8', function() { 
       console.log('写入完成。');
