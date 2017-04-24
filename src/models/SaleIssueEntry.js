@@ -240,6 +240,10 @@ module.exports = function(sequelize, DataTypes) {
         FBrandCarbaMind: {
 			type: DataTypes.STRING,
 			allowNull: true
+		},
+        FFertGroupID: {
+			type: DataTypes.BIGINT,
+			allowNull: true
 		}
     });
 }
