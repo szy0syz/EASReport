@@ -61,28 +61,55 @@ Object.defineProperty(Array.prototype, 'group', {
 // }
 function statFert(arrData) {
   //以后这里从数据库取，不要写死！
-  var brandFString = ['尿素', '碳铵', '硫铵', '氯化铵', '硝磷铵', '普钙', '重钙', '钙镁', '磷铵', '富钙', '硫酸钾', '氯化钾', '硫酸钾肥', '高含量', '低含量']
+  //var brandFString = ['尿素', '碳铵', '硫铵', '氯化铵', '硝磷铵', '普钙', '重钙', '钙镁', '磷铵', '富钙', '硫酸钾', '氯化钾', '硫酸钾肥', '高含量', '低含量']
   var brandF = [];
   //根据顺序初始化
-  brandFString.forEach(function (s, i) {
-    var o = {
-      name: s,
-      sumQty: 0,
-      sumAmount: 0,
-      data: []
-    };
-    brandF.push(o);
-  })
+  // brandFString.forEach(function (s, i) {
+  //   var o = {
+  //     name: s,
+  //     sumQty: 0,
+  //     sumAmount: 0,
+  //     data: []
+  //   };
+  //   brandF.push(o);
+  // })
+
   //根据数据分析,待优化!
-  arrData.forEach(function (item) {
-    brandF.forEach(function (brand) {  // 这里brand其实就是brandF里的每一个元素，对其修改肯定会改变。
-      if (item.FBrandFertilizer == brand.name) {
-        brand.sumQty += item.FBaseQty;
-        brand.sumAmount += item.FAmount;  //修改为含税的
-        brand.data.push(item);
-      }
+  // arrData.forEach(function (item) {
+  //   brandF.forEach(function (brand) {  // 这里brand其实就是brandF里的每一个元素，对其修改肯定会改变。
+  //     if (item.FBrandFertilizer == brand.name) {
+  //       brand.sumQty += item.FBaseQty;
+  //       brand.sumAmount += item.FAmount;  //修改为含税的
+  //       brand.data.push(item);
+  //     }
+  //   });
+  // });
+
+  // let tmp = utils.filterAndGroupAndSumByColumn(arrData, {
+  //             filter: function (item) {
+  //               return item.BrandFertilizer != '非化肥'
+  //             },
+  //             group: function (item) {
+  //               return item.BrandFertilizer;
+  //             }
+  //           });
+  // tmp.forEach((val) => {
+    
+  // })
+
+  //重构算法！！！
+  arrData
+    .filter((item) => item.FBrandFertilizer != '非化肥')
+    .group((item) => item.FBrandFertilizer)
+    .forEach((val) => {
+      brandF.push({
+        sumQty: utils.sumByColumnName(val.data, 'FBaseQty'),
+        sumAmount: utils.sumByColumnName(val.data, 'FAmount'),
+        data: val.data
+      })
     });
-  });
+
+
   /////
   //添加明细统计
   brandF.forEach((val) => {
@@ -96,13 +123,25 @@ function statFert(arrData) {
       val.details.sort((a,b) => parseInt(a.number)-parseInt(b.number));
     }
   });
-  
 
-  brandF.push({
-    name: '复合肥',
-    sumQty: brandF[13].sumQty + brandF[14].sumQty,
-    sumAmount: brandF[13].sumAmount + brandF[14].sumAmount
-  });
+  // if(val.data.length >0) {
+  //     val.data[0].FFertGroupID
+  //   }
+
+  //为化肥大类排序，使用FFertGroupID排序
+  brandF.sort((a,b) => {
+    if(a.data.length >0 && b.data.length >0) {
+      return a.data[0].FFertGroupID - b.data[0].FFertGroupID;
+    }
+    return 0;
+  });  
+
+  // 复合肥这里要修复的哦！！！！！
+  // brandF.push({
+  //   name: '复合肥',
+  //   sumQty: brandF[13].sumQty + brandF[14].sumQty,
+  //   sumAmount: brandF[13].sumAmount + brandF[14].sumAmount
+  // });
   //返回结果
   return brandF;
 }
