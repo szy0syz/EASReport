@@ -34,7 +34,29 @@ module.exports = {
     return acc;
     }, []);
     return arrData;
-  }
+  },
   /////////////////////////////////////////////////
-
+  filterAndGroupAndSumByColumnWithDetails(arrData, options) {
+    // 检查arrData不能为空，colName长度大于0。
+    if(!arrData && options.colName.length >0) return [];
+  
+    // 先过滤
+    if(options.filter) {
+      arrData = arrData.filter(options.filter);
+    }
+    // 再分组
+    if(options.group) {
+      arrData = arrData.group(options.group);
+    }
+    // 最后聚合
+    arrData = arrData.reduce((acc, val) => {
+    acc.push({
+      name: val.key,
+      sum: this.sumByColumnName(val.data, options.colName),
+      data: val.data // plus metadata array
+    })
+    return acc;
+    }, []);
+    return arrData;
+  }
 }

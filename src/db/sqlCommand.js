@@ -92,7 +92,7 @@ function Command (targetDate) {
 
   this.purIn = 
       `SELECT 
-            pe.FID AS FID, pe.FQty AS FQty, pe.FBaseQty AS FBaseQty, pe.FBaseQty AS FBaseQty, pe.FPrice AS FPrice, pe.FAmount AS FAmount,
+            pe.FID AS FID, pe.FQty AS FQty, pe.FBaseQty AS FBaseQty, pe.FPrice AS FPrice, pe.FAmount AS FAmount,
             pe.FTaxPrice AS FTaxPrice, pe.FTaxAmount AS FTaxAmount, 
             pe.FUnitActualCost AS FUnitActualCost, pe.FActualCost AS FActualCost, pe.FPurOrderNumber AS FPurOrderNumber, pe.FPurOrderID AS FPurOrderID, pe.FTax AS FTax, 
             pb.FDescription AS FDescription, pb.FAuditTime AS FAuditTime, pb.FYear AS FYear, pb.FMonth AS FMonth, pb.FPeriod AS FPeriod,

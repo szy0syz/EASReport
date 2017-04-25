@@ -163,6 +163,10 @@ module.exports = function(sequelize, DataTypes) {
 		FMaterialType3: {
 			type: DataTypes.STRING,
 			allowNull: true
-		}	
+		},
+        FFertGroupID: {
+			type: DataTypes.BIGINT,
+			allowNull: true
+		}
     });
 }

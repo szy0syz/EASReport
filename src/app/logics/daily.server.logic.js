@@ -220,7 +220,7 @@ function statInventory(arrData, options) {
   //求五大分公司库存尿素物料明细数组, 云化2767吨，解化2吨，川化2吨，美丰3363吨，湖光7.......
   arrData = [];
   arrData = arrDataOri.slice();
-  statRes.sumUreaSubBranchMaterialDetailQty = utils.filterAndGroupAndSumByColumn(arrData, {
+  statRes.sumUreaSubBranchMaterialDetailQty = utils.filterAndGroupAndSumByColumnWithDetails(arrData, {
     filter: function(item) { //先过滤出来五大分公司所有库存尿素物料明细
       return item.CorrStorageOrgUnit != '进出口部' && item.FInventoryEndQty != 0 && item.FBrandCarbaMind != '非尿素'
     },
@@ -228,6 +228,13 @@ function statInventory(arrData, options) {
       return item.FMaterial; //以物料名称分组
     },
     colName: 'FInventoryEndQty'
+  })
+
+  statRes.sumUreaSubBranchMaterialDetailQty.sort((a, b)=> {   
+    if(a.data.length >0 && b.data.length >0) {
+      return a.data[0].FNumber - b.data[0].FNumber; //靠这里全是尿素，不能那个用FFertGroupID比较
+    }
+    else 0;
   })
 
   //invtObj.sumFertSubBranchQtyEx = 碳铵207吨，硝磷铵1468吨，普钙804吨，重钙695吨，钙镁磷190吨，磷铵112吨，钾肥5490吨，复合肥11460吨
