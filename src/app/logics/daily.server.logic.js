@@ -241,7 +241,7 @@ function statInventory(arrData, options) {
   //求五大分公司库存除尿素和其它化肥以外 物料明细数组
   arrData = [];
   arrData = arrDataOri.slice();
-  statRes.sumFertSubBranchQtyEx = utils.filterAndGroupAndSumByColumn(arrData, {
+  statRes.sumFertSubBranchQtyEx = utils.filterAndGroupAndSumByColumnWithDetails(arrData, {
     filter: function(item) { //
       return item.CorrStorageOrgUnit != '进出口部' && item.FInventoryEndQty != 0 && item.FBrandFertilizer != '其它' && item.FBrandFertilizer != '尿素'
     },
@@ -249,6 +249,13 @@ function statInventory(arrData, options) {
       return item.FBrandFertilizer; //以化肥类别
     },
     colName: 'FInventoryEndQty'
+  })
+
+  statRes.sumFertSubBranchQtyEx.sort((a, b)=> {   
+    if(a.data.length >0 && b.data.length >0) {
+      return a.data[0].FFertGroupID - b.data[0].FFertGroupID; //靠这里全是尿素，不能那个用FFertGroupID比较
+    }
+    else 0;
   })
 
   //sumOtherFertSubBranchQty = 其它98吨
