@@ -9,10 +9,10 @@ function printDetailsSummary(arrData) {  //数组要用reduce 一定要把空的
   if(arrData) {
     sumDetailsReport = arrData
                           .reduce((acc, val) => {
-                              acc.push(val.name + '['+ val.model +']' + val.sumQty.toFixed(decimalDigits) + "吨,单价" + (val.sumAmount / val.sumQty).toFixed(0));                       
+                              acc.push(val.name + '['+ val.model +']' + val.sumQty.toFixed(decimalDigits) + "吨,均单价" + (val.sumAmount / val.sumQty).toFixed(0));                       
                             return acc;
                           }, [])
-                          .join(','); //以逗号相连
+                          .join(';'); //以逗号相连
   }
   return sumDetailsReport;
 }

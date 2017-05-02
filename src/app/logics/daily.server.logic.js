@@ -78,7 +78,7 @@ function statFert(arrData) {
   /////
   //添加明细统计
   brandF.forEach((val) => {
-    val.details = statDetails(val.data, (item) => {return item.FBrandFertilizer == val.name}, (item) => { return item.FMaterialType3})
+    val.details = statDetails(val.data, (item) => {return item.FBrandFertilizer == val.name}, (item) => { return item.FMaterialNumber}) //修改为按物料编码聚合
   });
 
   //为统计对象中尿素结果排序！
@@ -225,7 +225,7 @@ function statInventory(arrData, options) {
       return item.CorrStorageOrgUnit != '进出口部' && item.FInventoryEndQty != 0 && item.FBrandCarbaMind != '非尿素'
     },
     group: function(item) {
-      return item.FMaterial; //以物料名称分组
+      return item.FMaterialType3; //以物料品牌分类3聚合
     },
     colName: 'FInventoryEndQty'
   })
