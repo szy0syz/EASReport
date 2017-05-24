@@ -375,6 +375,16 @@ module.exports = function(startDate, endDate) {
   });
 
   Promise.join(query, queryCurtAcc, queryLastAcc, queryPurIn, queryInventory, function (curtData, curtAccData, lastAccData, purInData, invtData) {
+
+    // 购进统计
+    const statPurRes = { 
+      sumCurtQty: utils.sumByColumnName(purInData, 'FBaseQty'),
+      sumCurtAmount: utils.sumByColumnName(purInData, 'FTaxAmount'),
+      statFertRes: statFert(purInData),
+      statDetails: statDetails(purInData, function(v) { return v.FBrandCarbaMind != '非尿素' },function(item) {return item.FMaterialNumber})
+    };
+
+    // 销售统计
     const statSaleRes = {
       sumCurtQty: utils.sumByColumnName(curtData, 'FBaseQty'),
       sumCurtAmount: utils.sumByColumnName(curtData, 'FAmount'),
@@ -386,12 +396,15 @@ module.exports = function(startDate, endDate) {
       statDetails: statDetails(curtData,function(v) { return v.FBrandCarbaMind != '非尿素' },function(item) {return item.FMaterialNumber})
     };
 
-    const statPurRes = { 
-      sumCurtQty: utils.sumByColumnName(purInData, 'FBaseQty'),
-      sumCurtAmount: utils.sumByColumnName(purInData, 'FTaxAmount'),
-      statFertRes: statFert(purInData),
-      statDetails: statDetails(purInData, function(v) { return v.FBrandCarbaMind != '非尿素' },function(item) {return item.FMaterialNumber})
-    };
+    // 三、销售累计
+    const satateSaleAccRes = {
+      sumAccCurtQty: utils.sumByColumnName(curtAccData, 'FBaseQty'),  //本年度累计数量
+      sumAccCurtAmount: utils.sumByColumnName(curtAccData, 'FAmount'),//本年度累计金额
+      sumAccLastQty: utils.sumByColumnName(lastAccData, 'FBaseQty'),  //去年同期累计数量
+      sumAccLastAmount: utils.sumByColumnName(lastAccData, 'FAmount'),//去年统计累计金额
+    }
+
+    // 四、库存
     const statInvtRes = statInventory(invtData);
 
     const dailyObj = {
@@ -399,6 +412,7 @@ module.exports = function(startDate, endDate) {
       endDate: endDate,
       pur: statPurRes,
       sale: statSaleRes,
+      saleAcc: satateSaleAccRes,
       invt: statInvtRes,
     };
 
