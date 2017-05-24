@@ -46,8 +46,9 @@ function printSaleSummary(statRes, startDate) {
 // 销售累计报表打印
 function printSaleAccSummary(statRes, startDate) {
   let res = "三、" + startDate.toString().slice(0,4) + "年累计销售：" + statRes.sumAccCurtQty.toFixed(decimalDigits) + "吨，同比增长" 
-  + (((statRes.sumAccCurtQty - statRes.sumAccLastQty) / statRes.sumAccLastQty) * 100).toFixed() + "%；累计销额"
-   + (statRes.sumAccCurtAmount / 10000).toFixed(decimalDigits) + "万元，同比增长" + (((statRes.sumAccCurtAmount - statRes.sumAccLastAmount) / statRes.sumAccLastAmount) * 100).toFixed() + '%';
+    + (((statRes.sumAccCurtQty - statRes.sumAccLastQty) / statRes.sumAccLastQty) * 100).toFixed() + "%；累计销额"
+    + (statRes.sumAccCurtAmount / 10000).toFixed(decimalDigits) + "万元，同比增长" + (((statRes.sumAccCurtAmount - statRes.sumAccLastAmount) / statRes.sumAccLastAmount) * 100).toFixed() + '%；'
+    + statRes.subAcc + '；' + statRes.jckAcc;
   return res;
 }
 

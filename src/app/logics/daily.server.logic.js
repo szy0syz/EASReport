@@ -299,6 +299,24 @@ function statInventory(arrData, options) {
   return statRes;
 }
 
+
+
+//---------------------------
+// // 分公司累计销售155872吨，同比增长18%；累计销额23748万元，同比增长31% || 进出口部累计销售68032吨，同比增长84%；累计销额9392万元，同比增长23%
+// (((statRes.sumAccCurtAmount - statRes.sumAccLastAmount) / statRes.sumAccLastAmount) * 100).toFixed()
+function statAccCurtLast(filter, curtAccData, lastAccData, orgName) {
+  const curtAccQty = utils.sumByColumnName(curtAccData.filter(filter), 'FBaseQty').toFixed()
+  const curtAccAmount = utils.sumByColumnName(curtAccData.filter(filter), 'FAmount').toFixed()
+  const lastAccQty = utils.sumByColumnName(lastAccData.filter(filter), 'FBaseQty').toFixed()
+  const lastAccAmount = utils.sumByColumnName(lastAccData.filter(filter), 'FAmount').toFixed()
+
+  const qtyRatio = (((curtAccQty - lastAccQty) / lastAccQty) * 100).toFixed()
+  const amountRatio =  (((curtAccAmount - lastAccAmount) / lastAccAmount) * 100).toFixed()
+
+  return orgName + '累计销售' + curtAccQty + '吨，' + '同比' + utils.isGrowth(qtyRatio) + qtyRatio + '%；累计销额' + (curtAccAmount/10000).toFixed() + '万元，同比' + utils.isGrowth(amountRatio) + amountRatio + '%'
+}
+
+
 /////////////////////////////////////////
 module.exports = function(startDate, endDate) {
   let bizDateStart = Moment(startDate);
@@ -376,7 +394,7 @@ module.exports = function(startDate, endDate) {
 
   Promise.join(query, queryCurtAcc, queryLastAcc, queryPurIn, queryInventory, function (curtData, curtAccData, lastAccData, purInData, invtData) {
 
-    // 购进统计
+    // 一、购进统计
     const statPurRes = { 
       sumCurtQty: utils.sumByColumnName(purInData, 'FBaseQty'),
       sumCurtAmount: utils.sumByColumnName(purInData, 'FTaxAmount'),
@@ -384,15 +402,11 @@ module.exports = function(startDate, endDate) {
       statDetails: statDetails(purInData, function(v) { return v.FBrandCarbaMind != '非尿素' },function(item) {return item.FMaterialNumber})
     };
 
-    // 销售统计
+    // 二、销售统计
     const statSaleRes = {
       sumCurtQty: utils.sumByColumnName(curtData, 'FBaseQty'),
       sumCurtAmount: utils.sumByColumnName(curtData, 'FAmount'),
       statFertRes: statFert(curtData),
-      sumAccCurtQty: utils.sumByColumnName(curtAccData, 'FBaseQty'),  //本年度累计数量
-      sumAccCurtAmount: utils.sumByColumnName(curtAccData, 'FAmount'),//本年度累计金额
-      sumAccLastQty: utils.sumByColumnName(lastAccData, 'FBaseQty'),  //去年同期累计数量
-      sumAccLastAmount: utils.sumByColumnName(lastAccData, 'FAmount'),//去年统计累计金额
       statDetails: statDetails(curtData,function(v) { return v.FBrandCarbaMind != '非尿素' },function(item) {return item.FMaterialNumber})
     };
 
@@ -402,7 +416,11 @@ module.exports = function(startDate, endDate) {
       sumAccCurtAmount: utils.sumByColumnName(curtAccData, 'FAmount'),//本年度累计金额
       sumAccLastQty: utils.sumByColumnName(lastAccData, 'FBaseQty'),  //去年同期累计数量
       sumAccLastAmount: utils.sumByColumnName(lastAccData, 'FAmount'),//去年统计累计金额
-    }
+      subAcc: statAccCurtLast(function (item) {
+        return item.FStorageOrgUnit != '进出口部' // 必须是化肥已经在sql命令中过滤
+      }, curtAccData, lastAccData, '分公司'), // 统计某些个组织的今去年累计 
+      jckAcc: statAccCurtLast((item) => item.FStorageOrgUnit == '进出口部', curtAccData, lastAccData, '进出口部')
+  } 
 
     // 四、库存
     const statInvtRes = statInventory(invtData);

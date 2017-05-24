@@ -58,5 +58,11 @@ module.exports = {
     return acc;
     }, []);
     return arrData;
+  },
+
+  /////////////////////////////
+  isGrowth (num) {
+    return num > 0 ? '增长' : '减少'
   }
+
 }
