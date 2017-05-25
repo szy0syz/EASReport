@@ -13,6 +13,7 @@ module.exports = {
   // paras:  arrData = sql metadata models
   //         options = {fitter, group, colName}
   // return: array[{name: xx, sum:yy}, {name: xx, sum:yy}]
+  // must group!
   filterAndGroupAndSumByColumn(arrData, options) {
     // 检查arrData不能为空，colName长度大于0。
     if(!arrData && options.colName.length >0) return [];

@@ -316,6 +316,22 @@ function statAccCurtLast(filter, curtAccData, lastAccData, orgName) {
   return orgName + '累计销售' + curtAccQty + '吨，' + '同比' + utils.isGrowth(qtyRatio) + qtyRatio + '%；累计销额' + (curtAccAmount/10000).toFixed() + '万元，同比' + utils.isGrowth(amountRatio) + amountRatio + '%'
 }
 
+//统计各大公司累计销售的明细
+function sateAccSubDetail(filter, group, curtAccData, lastAccData) {
+  const curtGroupData = utils.filterAndGroupAndSumByColumn(curtAccData, {
+    filter: filter,
+    group: group,
+    colName: 'FBaseQty'
+  })
+  const lastGroupData = utils.filterAndGroupAndSumByColumn(lastAccData, {
+    filter: filter,
+    group: group,
+    colName: 'FBaseQty'
+  })
+  console.log(curtGroupData)
+  console.log(lastGroupData)
+  return 0
+}
 
 /////////////////////////////////////////
 module.exports = function(startDate, endDate) {
@@ -419,7 +435,8 @@ module.exports = function(startDate, endDate) {
       subAcc: statAccCurtLast(function (item) {
         return item.FStorageOrgUnit != '进出口部' // 必须是化肥已经在sql命令中过滤
       }, curtAccData, lastAccData, '分公司'), // 统计某些个组织的今去年累计 
-      jckAcc: statAccCurtLast((item) => item.FStorageOrgUnit == '进出口部', curtAccData, lastAccData, '进出口部')
+      jckAcc: statAccCurtLast((item) => item.FStorageOrgUnit == '进出口部', curtAccData, lastAccData, '进出口部'),
+      subAccDetail: sateAccSubDetail( (item) => item.FStorageOrgUnit !== '进出口部', (item) => item.FParentStorageOrgUnit, curtAccData, lastAccData)
   } 
 
     // 四、库存

@@ -68,7 +68,7 @@ function printPurSummary(statRes, startDate) {
       acc.push(printDetailsSummary(val.details))
       return acc;
     }, [])
-    .join(',');
+    .join(';');
   let strSaleSummary = "一、购进：化肥总购入" + statRes.sumCurtQty.toFixed(decimalDigits) + "吨，" + (statRes.sumCurtAmount / 10000).toFixed(decimalDigits) + "万元。" +
       "其中" + sumFert + "。";
   return strSaleSummary;
@@ -113,7 +113,7 @@ module.exports = function(res) {
     //invtObj.sumOtherFertSubBranchQty = 其它98吨
     //invtObj.sumOtherFertSubDetailQty = 纳若夏有机肥19吨，明月47吨，金满田32吨
     //invtObj.jckSumFertDetailQty = 尿素44吨，重钙21080吨，磷铵41108吨，磷酸984吨
-    let invtReport = `四、库存：全公司化肥库存${invtObj.sumFertQty}吨。其中1、分公司库存${invtObj.sumFertSubBranchQty}吨（${invtObj.sumFertSubBranchDetailQty}），尿素${invtObj.sumUreaSubBranchQty}吨（${invtObj.sumUreaSubBranchDetailQty}顿，其中${invtObj.sumUreaSubBranchMaterialDetailQty}），${invtObj.sumFertSubBranchQtyEx}，其它${invtObj.sumOtherFertSubBranchQty}吨（${invtObj.sumOtherFertSubDetailQty}）。2、进出口部库存${invtObj.jckSumFertQty}吨（${invtObj.jckSumFertDetailQty}）。`;
+    let invtReport = `四、库存：全公司化肥库存${invtObj.sumFertQty}吨。其中1、分公司库存${invtObj.sumFertSubBranchQty}吨（${invtObj.sumFertSubBranchDetailQty}），尿素${invtObj.sumUreaSubBranchQty}吨（${invtObj.sumUreaSubBranchDetailQty}，其中${invtObj.sumUreaSubBranchMaterialDetailQty}），${invtObj.sumFertSubBranchQtyEx}，其它${invtObj.sumOtherFertSubBranchQty}吨（${invtObj.sumOtherFertSubDetailQty}）。2、进出口部库存${invtObj.jckSumFertQty}吨（${invtObj.jckSumFertDetailQty}）。`;
     
     let rHeader = '';
 
