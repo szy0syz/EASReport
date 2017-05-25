@@ -48,7 +48,13 @@ function printSaleAccSummary(statRes, startDate) {
   let res = "三、" + startDate.toString().slice(0,4) + "年累计销售：" + statRes.sumAccCurtQty.toFixed(decimalDigits) + "吨，同比增长" 
     + (((statRes.sumAccCurtQty - statRes.sumAccLastQty) / statRes.sumAccLastQty) * 100).toFixed() + "%；累计销额"
     + (statRes.sumAccCurtAmount / 10000).toFixed(decimalDigits) + "万元，同比增长" + (((statRes.sumAccCurtAmount - statRes.sumAccLastAmount) / statRes.sumAccLastAmount) * 100).toFixed() + '%；'
-    + statRes.subAcc + '；' + statRes.jckAcc;
+    + statRes.subAcc + '('
+    + statRes.subAccDetail.reduce((acc, val) => {
+      acc.push(val.name + val.sum.toFixed() + ',同比' + val.ratio + '%')
+      return acc
+    }, []).join(';')
+    + ')；' 
+    + statRes.jckAcc;
   return res;
 }
 

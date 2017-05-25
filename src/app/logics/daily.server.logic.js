@@ -316,6 +316,13 @@ function statAccCurtLast(filter, curtAccData, lastAccData, orgName) {
   return orgName + '累计销售' + curtAccQty + '吨，' + '同比' + utils.isGrowth(qtyRatio) + qtyRatio + '%；累计销额' + (curtAccAmount/10000).toFixed() + '万元，同比' + utils.isGrowth(amountRatio) + amountRatio + '%'
 }
 
+
+// [ { name: '滇中分公司', sum: 37147.263500000015 },
+//   { name: '开远分公司', sum: 24140.431400000034 },
+//   { name: '大理分公司', sum: 43194.72999999997 },
+//   { name: '曲靖分公司', sum: 22349.229999999992 },
+//   { name: '楚雄分公司', sum: 31330.41500000001 },
+//   { name: '农药分公司', sum: 30.4 } ]
 //统计各大公司累计销售的明细
 function sateAccSubDetail(filter, group, curtAccData, lastAccData) {
   const curtGroupData = utils.filterAndGroupAndSumByColumn(curtAccData, {
@@ -328,9 +335,21 @@ function sateAccSubDetail(filter, group, curtAccData, lastAccData) {
     group: group,
     colName: 'FBaseQty'
   })
-  console.log(curtGroupData)
-  console.log(lastGroupData)
-  return 0
+
+  curtGroupData.map( (item) => {
+    // 先看同比数是否存在，不存在就不用算了
+    const lastData = lastGroupData.filter((last)=> last.name === item.name)[0].sum // 取去年同比数,原始小数位数，后面toFix
+    const curtData = item.sum
+    item.ratio = (((curtData - lastData) / lastData) * 100).toFixed() // 这个比例已经是带百分号的了
+    return item
+  })
+  return curtGroupData
+  // [ { name: '滇中分公司', sum: 37147.263500000015, ratio: '365' },
+  // { name: '开远分公司', sum: 24140.431400000034, ratio: '-12' },
+  // { name: '大理分公司', sum: 43194.72999999997, ratio: '-14' },
+  // { name: '曲靖分公司', sum: 22349.229999999992, ratio: '40' },
+  // { name: '楚雄分公司', sum: 31330.41500000001, ratio: '-10' },
+  // { name: '农药分公司', sum: 30.4, ratio: '-38' } ]
 }
 
 /////////////////////////////////////////
