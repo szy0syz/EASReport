@@ -50,7 +50,7 @@ function printSaleAccSummary(statRes, startDate) {
     + (statRes.sumAccCurtAmount / 10000).toFixed(decimalDigits) + "万元，同比增长" + (((statRes.sumAccCurtAmount - statRes.sumAccLastAmount) / statRes.sumAccLastAmount) * 100).toFixed() + '%；'
     + statRes.subAcc + '('
     + statRes.subAccDetail.reduce((acc, val) => {
-      acc.push(val.name + val.sum.toFixed() + ',同比' + val.ratio + '%')
+      acc.push(val.name + val.sum.toFixed() + '吨,同比' + val.ratio + '%')
       return acc
     }, []).join(';')
     + ')；' 
