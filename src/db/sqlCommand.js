@@ -6,7 +6,8 @@ module.exports = Command;
 function Command (targetDate) {
   //格式化目标日期
   targetDate = Moment(targetDate);
-  const day = targetDate.date();
+  const day = Number(targetDate.date());
+  console.log('****************' + day)
   this.saleOut = 
       `SELECT 
                   sb.FID ,c.FName_L2 as FCustomer, pt.FName_L2 as FPaymentType,bu.FName_L2 as FStorageOrgUnit , bu4. FParentUnit AS FParentStorageOrgUnit, 
@@ -139,11 +140,14 @@ function Command (targetDate) {
       EXEC	@return_value = [dbo].[SZY_P_InertSZYTableData_plus]
       @FBizDateEnding = :FBizDateEnd `;
 
-  //当目标日期为26~31日之间，使用制单日期查询数据。    
-  if (day >= 26 && day <=31 ) {
+  //当目标日期为1号或者26~31日之间，使用制单日期查询数据。
+//   if (day == 1 || day >= 26 && day <=31) 
+  if (day == 1 || day >= 26 && day <=31) {
+    console.log('********制单日期')
     this.saleOut += " AND sb.FCreateTime between :FBizDateStart and :FBizDateEnd";
     this.purIn += " AND pb.FCreateTime between :FBizDateStart and :FBizDateEnd";
   } else {
+    console.log('********业务日期')
     this.saleOut += " AND sb.FBizDate between :FBizDateStart and :FBizDateEnd";
     this.purIn += " AND pb.FBizDate between :FBizDateStart and :FBizDateEnd";
   }

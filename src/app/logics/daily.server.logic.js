@@ -428,6 +428,8 @@ module.exports = function(startDate, endDate) {
   });
 
   Promise.join(query, queryCurtAcc, queryLastAcc, queryPurIn, queryInventory, function (curtData, curtAccData, lastAccData, purInData, invtData) {
+    //!!!!!!
+    console.log('length_!!!!!!!!!!____' + curtData.length + '__' + purInData.length)
 
     // 一、购进统计
     const statPurRes = { 
