@@ -39,7 +39,7 @@ function printSaleSummary(statRes, startDate) {
     }, [])
     .join(';');
   var strSaleSummary = "二、销售：化肥总售出" + statRes.sumCurtQty.toFixed(decimalDigits) + "吨，" + (statRes.sumCurtAmount / 10000).toFixed(decimalDigits) + "万元。" +
-      "其中化肥" +sumFert + "。（以销售出库单统计）。";
+      "其中" +sumFert + "。（以销售出库单统计）。";
   return strSaleSummary;
 }
 
@@ -47,7 +47,7 @@ function printSaleSummary(statRes, startDate) {
 function printSaleAccSummary(statRes, startDate) {
   let res = "三、" + startDate.toString().slice(0,4) + "年累计销售：全公司累计销售" + statRes.sumAccCurtQty.toFixed(decimalDigits) + "吨，同比增长" 
     + (((statRes.sumAccCurtQty - statRes.sumAccLastQty) / statRes.sumAccLastQty) * 100).toFixed() + "%；累计销额"
-    + (statRes.sumAccCurtAmount / 10000).toFixed(decimalDigits) + "万元，同比增长" + (((statRes.sumAccCurtAmount - statRes.sumAccLastAmount) / statRes.sumAccLastAmount) * 100).toFixed() + '%；其中'
+    + (statRes.sumAccCurtAmount / 10000).toFixed(decimalDigits) + "万元，同比增长" + (((statRes.sumAccCurtAmount - statRes.sumAccLastAmount) / statRes.sumAccLastAmount) * 100).toFixed() + '%；其中化肥'
     + statRes.subAcc + '('
     + statRes.subAccDetail.reduce((acc, val) => {
       acc.push(val.name + val.sum.toFixed() + '吨,同比' + val.ratio + '%')
