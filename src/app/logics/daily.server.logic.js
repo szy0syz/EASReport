@@ -353,13 +353,16 @@ function sateAccSubDetail(filter, group, curtAccData, lastAccData) {
 }
 
 /////////////////////////////////////////
+/////////////////////////////////////////
+/////////////////////////////////////////
 module.exports = function(startDate, endDate) {
   let bizDateStart = Moment(startDate);
   let bizDateEnd = Moment(endDate);
   let day = Moment(startDate).date();
-  // 如果是26到31或者是1号，则true
+  // 如果是26到31或者是1号，则true，留下了查询库存的bug~~~
   let isEndMonth = (day >= 26 && day <= 31) || ( day = 1) ? true : false;
-  if (isEndMonth) {
+  let isFirstDay = day === 1 ? true: false;
+  if (isEndMonth && isFirstDay === false) {
     bizDateEnd = bizDateEnd.add(1, 'd');
   }
 
@@ -424,8 +427,8 @@ module.exports = function(startDate, endDate) {
 
   let queryInventory = sequelize.query(sqlCommand.Invt, {
     type: sequelize.QueryTypes.SELECT,
-    model: InventoryEntry,  //如果是结账日之后,统计到次月1日.
-    replacements: { FBizDateEnd:  isEndMonth ? Moment(strDateEnd).add(1, 'M').date(1).format('YYYY-MM-DD') : strDateEnd }
+    model: InventoryEntry,  //如果是1号，及时库存还是差到1号；结账日之后,统计到次月1日.
+    replacements: { FBizDateEnd:  isFirstDay ? strDateEnd : (isEndMonth ? Moment(strDateEnd).add(1, 'M').date(1).format('YYYY-MM-DD') : strDateEnd) }
   });
 
   Promise.join(query, queryCurtAcc, queryLastAcc, queryPurIn, queryInventory, function (curtData, curtAccData, lastAccData, purInData, invtData) {
