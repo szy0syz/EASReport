@@ -357,7 +357,8 @@ module.exports = function(startDate, endDate) {
   let bizDateStart = Moment(startDate);
   let bizDateEnd = Moment(endDate);
   let day = Moment(startDate).date();
-  let isEndMonth = day >= 26 && day <= 31 ? true : false;
+  // 如果是26到31或者是1号，则true
+  let isEndMonth = (day >= 26 && day <= 31) || ( day = 1) ? true : false;
   if (isEndMonth) {
     bizDateEnd = bizDateEnd.add(1, 'd');
   }
