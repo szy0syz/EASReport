@@ -338,9 +338,17 @@ function sateAccSubDetail(filter, group, curtAccData, lastAccData) {
 
   curtGroupData.map( (item) => {
     // 先看同比数是否存在，不存在就不用算了
-    const lastData = lastGroupData.filter((last)=> last.name === item.name)[0].sum // 取去年同比数,原始小数位数，后面toFix
+    // const lastData = lastGroupData.filter((last)=> last.name === item.name)[0].sum // 取去年同比数,原始小数位数，后面toFix
+    let lastData
+    let tmp = lastGroupData.filter((last)=> last.name === item.name)
+    if(tmp.length > 0) {
+      lastData = tmp[0].sum;
+    } else {
+      lastData = 0
+    }
     const curtData = item.sum
     item.ratio = (((curtData - lastData) / lastData) * 100).toFixed() // 这个比例已经是带百分号的了
+    tmp = null
     return item
   })
   return curtGroupData
