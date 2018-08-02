@@ -21,9 +21,20 @@ nodejs + express + sequelize + sql + bluebird + handlerbars + bootstrap
 
 ## 版本介绍
 
-> v1版本：通过脚本一键式生成txt格式日报表；
+### v1版本
 
-> v2版本：通过网页界面，可以自助生成日报表；
+通过脚本一键式生成txt格式日报表；
+
+### v2版本
+
+- 通过网页界面，可以自助生成日报表
+- ES5、字符串拼接报表
+- v2版本时我刚接触js，完全不知道promise，我竟然会用bluebird
+- 流程：get请求生成某个日期的日报表，bluebird分别生成三个逻辑，两个sql和一个存储过程，然后bluebird套三个查询执行promise.all，sequlize原生查询后返回结果，最后根据结果处理逻辑生成进、销、存对象，然后再交给报表生成逻辑生成报表
+
+### v3版本
+
+- 本来应该async/await、Koa、sequlize、decorator，最后还是按模块开发
 
 ## 目标功能
 
@@ -32,7 +43,7 @@ nodejs + express + sequelize + sql + bluebird + handlerbars + bootstrap
 - [x] v2：加入handlerbars和bootstrap提供界面 -- 完成
 - [x] v2：核心算法分离封装 -- 完成
 - [x] v2：将报表对象读写JSON，方便前端 -- 完成
-- [ ] v3：加入babel，使用ES6/7
+- [ ] v3：bable、es6/7
 
 ## 安装
 
